@@ -1,7 +1,7 @@
 /*
 Authors - Eli Slavutsky (308882992) & Nisan Tagar (302344031)
 Project Name - Ex2
-Description - 
+Description - Bla Bla Bla
 */
 
 #include <stdio.h>
