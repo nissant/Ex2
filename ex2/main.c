@@ -1,7 +1,7 @@
 /*
 Authors - Eli Slavutsky (308882992) & Nisan Tagar (302344031)
-Project Name - ex1. Pilots, Planes & Plans
-Description - In this project we assign for each destination a plane with a set of pilots (captain and first officer), with minimum hours, qualified to fly the plane.
+Project Name - Ex2
+Description - 
 */
 
 #include <stdio.h>
