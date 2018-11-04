@@ -13,4 +13,18 @@ void main(int argc, char *argv[]) {
 
 	printf("Eli and Nisan's git synced project! \n");
 
+	// Check that minimal cmd line args are present
+	if (argc < 3) {
+		printf(ERROR_MESSAGE);
+		exit(1);
+	}
+
+	// Set flight plan output file for writing
+	FILE *fp_output = fopen(argv[3], "w");
+	if (fp_output == NULL)							// Handle errors
+	{
+		printf(ERROR_MESSAGE);						// At this point error can't be written to file...
+		exit(1);
+	}
+
 }
