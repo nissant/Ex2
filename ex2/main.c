@@ -14,6 +14,8 @@ void main(int argc, char *argv[]) {
 	printf("Eli and Nisan's git synced project! \n");
 	printf("test printf - Eli&Nisan");
 	printf("test printf - Nisan"); //Test cooment
+	//test bla bla 
+	//test bla vla 
 
 	// Check that minimal cmd line args are present
 	if (argc < 3) {
