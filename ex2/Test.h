@@ -8,5 +8,4 @@ Description -
 #include <stdio.h>
 #include <string.h>
 
-// Bla bla bla
 

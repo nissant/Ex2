@@ -17,9 +17,17 @@ void main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	// Set flight plan output file for writing
-	FILE *fp_output = fopen(argv[3], "w");
-	if (fp_output == NULL)							// Handle errors
+	// Set test results output file for writing
+	FILE *fp_results = fopen(argv[2], "w");
+	if (fp_results == NULL)							// Handle errors
+	{
+		printf(ERROR_MESSAGE);						// At this point error can't be written to file...
+		exit(1);
+	}
+
+	// Set test input file for reading
+	FILE *fp_test = fopen(argv[1], "r");
+	if (fp_test == NULL)							// Handle errors
 	{
 		printf(ERROR_MESSAGE);						// At this point error can't be written to file...
 		exit(1);
