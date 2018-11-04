@@ -12,6 +12,7 @@ Description - This program impelments an application testing environment
 void main(int argc, char *argv[]) {
 
 	printf("Eli and Nisan's git synced project! \n");
+	printf("test printf - eli");
 
 	// Check that minimal cmd line args are present
 	if (argc < 3) {
