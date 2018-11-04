@@ -1,13 +1,10 @@
 /*
 Authors - Eli Slavutsky (308882992) & Nisan Tagar (302344031)
 Project Name - Ex2
-Description - Bla 
-Bla Bla
-Description - 
-
+Description - This program impelments an application testing environment
 */
 
-#include <stdio.h>
+#include "Test.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 #define ERROR_MESSAGE "An error occurred during execution, couldn't complete the task!\n"
