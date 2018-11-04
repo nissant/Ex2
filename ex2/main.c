@@ -11,13 +11,7 @@ Description - This program impelments an application testing environment
 
 void main(int argc, char *argv[]) {
 
-	printf("Eli and Nisan's git synced project! \n");
-	printf("test printf - Eli&Nisan");
-	printf("test printf - Nisan"); //Test cooment
-	//test bla bla 
-	//test bla vla 
-
-	// Check that minimal cmd line args are present
+	// Check that minimal cmd line args are present - 
 	if (argc < 3) {
 		printf(ERROR_MESSAGE);
 		exit(1);
