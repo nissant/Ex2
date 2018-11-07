@@ -1,10 +1,11 @@
 /*
 Authors - Eli Slavutsky (308882992) & Nisan Tagar (302344031)
 Project Name - Ex2
-Description - This program impelments an application testing environment
+Description - This program impelments an application testing tool. Test are run in parallel using threads
 */
 
-#include "Test.h"
+#include "TestEnvironment.h"
+#include "AppTest_Thread.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 #define ERROR_MESSAGE "An error occurred during execution, couldn't complete the task!\n"

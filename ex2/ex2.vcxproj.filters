@@ -18,18 +18,19 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IO_Examples\Example1\Test Environment.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IO_Examples\Example1\AppTest_Thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Test.h">
+    <ClInclude Include="..\..\..\IO_Examples\Example1\AppTest_Thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="test.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="results.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <ClInclude Include="TestEnvironment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
