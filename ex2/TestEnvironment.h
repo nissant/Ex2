@@ -29,6 +29,7 @@ typedef struct {
 	HANDLE test_thread_handles;
 	DWORD test_thread_id;
 	char app_path[MAX_LINE_LEN];					// String of size MAX_LINE_LEN holding app full path
+	char app_args[MAX_LINE_LEN];					// String of size MAX_LINE_LEN holding app complete argument string
 	char app_exp_results_path[MAX_LINE_LEN];		// String of size MAX_LINE_LEN holding app expected resuts full path
 	char app_test_results[MAX_RESULTS_LINE_LEN];	// String of size MAX_RESULTS_LINE_LEN holding test results: Succeeded, Timed Out, Failed, Crashed -xx
 	struct test_app *next_test;
@@ -36,7 +37,8 @@ typedef struct {
 
 // Function Declarations -------------------------------------------------------
 
-int createAppTestList(char *tst_file_path[]);
+char *trimwhitespace(char *str);
+int createAppTestList(char *tst_file_path[], test_app **head_list_ptr);
 int createTestResults(char *report_file_path[]);
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 	LPDWORD p_thread_id);

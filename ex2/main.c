@@ -18,16 +18,21 @@ int main(int argc, char *argv[]) {
 		printf("Not enough input arguments!");
 		exit(EXIT_FAILURE);
 	}
-
-	if (createAppTestList(argv[2]) != 0) {			
+	// Create test list
+	test_app *test_list = NULL;
+	if (createAppTestList(argv[2],&test_list) != 0) {
 		printf("An error occurred during test list creation, couldn't complete the task!\n");
+		// TODO - Free resources
 		exit(EXIT_FAILURE);
 	}
 
+	// Open test threads and call thread function
 
-	
+
+	// Wait for tests to complete
 
 
+	// Create Test results file
 	if (createTestResults(argv[3]) != 0) {
 		printf("An error occurred during results file creation, couldn't complete the task!\n");
 		// TODO - Free resources
