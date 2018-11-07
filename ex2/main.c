@@ -9,7 +9,6 @@ Description - This program impelments an application testing tool. Test are run 
 
 
 #define _CRT_SECURE_NO_WARNINGS
-#define ERROR_MESSAGE "An error occurred during execution, couldn't complete the task!\n"
 
 int main(int argc, char *argv[]) {
 
