@@ -139,12 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\IO_Examples\Example1\AppTest_Thread.c" />
-    <ClCompile Include="..\..\..\IO_Examples\Example1\Test Environment.c" />
+    <ClCompile Include="AppTest_Thread.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="Test Environment.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\IO_Examples\Example1\AppTest_Thread.h" />
+    <ClInclude Include="AppTest_Thread.h" />
     <ClInclude Include="TestEnvironment.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
