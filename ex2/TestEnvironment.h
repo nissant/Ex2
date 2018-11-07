@@ -36,7 +36,7 @@ typedef struct {
 } test_app;
 
 // Function Declarations -------------------------------------------------------
-
+void runTests(test_app *test_list_ptr);
 char *trimwhitespace(char *str);
 int createAppTestList(char *tst_file_path, test_app **test_list_ptr);
 int createTestResults(char *report_file_path[]);

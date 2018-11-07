@@ -7,7 +7,6 @@ Description - This program impelments an application testing tool. Test are run 
 // Includes --------------------------------------------------------------------
 #include "TestEnvironment.h"
 
-
 #define _CRT_SECURE_NO_WARNINGS
 
 int main(int argc, char *argv[]) {
@@ -26,7 +25,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Open test threads and call thread function
-
+	runTests(test_list);
 
 	// Wait for tests to complete
 

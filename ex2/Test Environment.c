@@ -9,7 +9,16 @@ Description - This program impelments an application testing tool. Test are run 
 
 
 // Function Definitions --------------------------------------------------------
+/*
+Function runTests
+------------------------
+Description –
+Parameters	–
+Returns		– 0 for success, -1 for failure
+*/
+void runTests(test_app *test_list_ptr) {
 
+}
 /*
 Function createAppTestList
 ------------------------
