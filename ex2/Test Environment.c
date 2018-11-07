@@ -19,6 +19,12 @@ Returns		– 0 for success, -1 for failure
 */
 void runTests(test_app *test_list_ptr) {
 
+	// Itterate over test list and open test threads
+	while (test_list_ptr != NULL) {
+		// Open new thread and pass to handler routine the test pointer
+		test_list_ptr->test_thread_handles = CreateThreadSimple(/* Eli's routine name*/, test_list_ptr, &test_list_ptr->test_thread_id);
+		test_list_ptr = test_list_ptr->next_test;
+	}
 }
 /*
 Function createAppTestList
@@ -131,8 +137,7 @@ test_app *MakeTestFromLine(char *line)
 * Notes:
 *   This function is just a wrapper for CreateThread.
 */
-static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
-	LPDWORD p_thread_id)
+static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,test_app *tst_ptr,LPDWORD p_thread_id)
 {
 	HANDLE thread_handle;
 
@@ -154,7 +159,7 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,
 		NULL,            /*  default security attributes */
 		0,               /*  use default stack size */
 		p_start_routine, /*  thread function */
-		NULL,            /*  argument to thread function */
+		tst_ptr,         /*  argument to thread function */
 		0,               /*  use default creation flags */
 		p_thread_id);    /*  returns the thread identifier */
 
@@ -194,4 +199,22 @@ char *trimwhitespace(char *str)
 	end[1] = '\0';
 
 	return str;
+}
+
+/*
+Function: ClearTestList
+------------------------
+Description – The function receive pointer to the head of tests list and free's allocated memory
+Parameters	– *list_head - pointer to the head of the tests list.
+Returns		– Nothing
+*/
+void ClearTestList(test_app *tst_lst)
+{
+	test_app *tmp_t;
+	while (tst_lst != NULL) // while list is not empty
+	{
+		tmp_t = tst_lst;
+		tst_lst = tst_lst->next_test;
+		free(tmp_t);
+	}
 }
