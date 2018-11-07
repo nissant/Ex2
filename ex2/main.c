@@ -28,10 +28,20 @@ int main(int argc, char *argv[]) {
 	// Open test threads and call thread function
 	runTests(test_list);
 
-	// Wait for tests to complete
+	// Wait for test threads to receive exit command and terminate
+	/* TODO
+		if (waitForTestThreads() != 0) {
 
+		}
+		wait_code = WaitForSingleObject(p_thread_handles[0], INFINITE);
+		if (WAIT_OBJECT_0 != wait_code)
+		{
+			printf("Error when waiting");
+			return ERROR_CODE;
+		}
+	*/
 
-	// Create Test results file
+	// Create Test results file // TODO
 	if (createTestResults(argv[3]) != 0) {
 		printf("An error occurred during results file creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
