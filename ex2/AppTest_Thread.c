@@ -16,7 +16,39 @@ void runProc(test_app *test_list)
 	DWORD				exitcode;
 	BOOL				retVal;
 
-	retVal = CreateProcessSimple(command, &procinfo);
+	retVal = CreateProcessSimple(test_list->app_path, &procinfo);
+	if (retVal == 0)
+	{
+		printf("Process Creation Failed!\n");
+		return;
+	}
+
+	waitcode = WaitForSingleObject(
+		procinfo.hProcess,
+		TIMEOUT_IN_MILLISECONDS); /* Waiting for the process to end */
+
+	printf("WaitForSingleObject output: ");
+	switch (waitcode)
+	{
+	case WAIT_TIMEOUT:
+		printf("WAIT_TIMEOUT\n"); break;
+	case WAIT_OBJECT_0:
+		printf("WAIT_OBJECT_0\n"); break;
+	default:
+		printf("0x%x\n", waitcode);
+	}
+
+	if (waitcode == WAIT_TIMEOUT) /* Process is still alive */
+	{
+		printf("Process was not terminated before timeout!\n"
+			"Terminating brutally!\n");
+		TerminateProcess(
+			procinfo.hProcess,
+			BRUTAL_TERMINATION_CODE); /* Terminating process with an exit code of 55h */
+		Sleep(10); /* Waiting a few milliseconds for the process to terminate */
+	}
+
+
 
 }
 

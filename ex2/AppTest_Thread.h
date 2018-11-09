@@ -9,5 +9,6 @@ written in text output file once all threads have terminated.
 #ifndef APPTEST_THREAD_H
 #define APPTEST_THREAD_H
 
+#define TIMEOUT_IN_MILLISECONDS 10000
 
 #endif
