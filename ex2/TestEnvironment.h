@@ -5,6 +5,8 @@ Description		- This program impelments an application testing environment. Tests
 					written in text output file once all threads have terminated.
 */
 
+#ifndef TESTENVIRONMENT_H
+#define TESTENVIRONMENT_H
 // Includes --------------------------------------------------------------------
 #include <windows.h>
 #include <stdbool.h>
@@ -14,11 +16,11 @@ Description		- This program impelments an application testing environment. Tests
 
 #include "AppTest_Thread.h"
 
-#ifndef APPTEST_H_INCLUDED
+
 
 // Constants -------------------------------------------------------------------
 
-#define APPTEST_H_INCLUDED
+
 #define MAX_LINE_LEN 100
 #define MAX_RESULTS_LINE_LEN 15
 

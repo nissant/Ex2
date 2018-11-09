@@ -6,4 +6,8 @@ written in text output file once all threads have terminated.
 */
 
 
-// Eli's Code Here
+#ifndef APPTEST_THREAD_H
+#define APPTEST_THREAD_H
+
+
+#endif
