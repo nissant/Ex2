@@ -144,14 +144,21 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,test_app
 	if (NULL == p_start_routine)
 	{
 		printf("Error when creating a thread");
-		printf("Received null pointer");
+		printf("Received null pointer for thread routine");
 		exit(ERROR_CODE);
 	}
 
 	if (NULL == p_thread_id)
 	{
 		printf("Error when creating a thread");
-		printf("Received null pointer");
+		printf("Received null pointer for thread ID");
+		exit(ERROR_CODE);
+	}
+
+	if (NULL == tst_ptr)
+	{
+		printf("Error when creating a thread");
+		printf("Received null pointer for routine argument");
 		exit(ERROR_CODE);
 	}
 
