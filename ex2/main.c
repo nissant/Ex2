@@ -8,7 +8,7 @@ written in text output file once all threads have terminated.
 // Includes --------------------------------------------------------------------
 #include "TestEnvironment.h"
 
-#define _CRT_SECURE_NO_WARNINGS
+
 
 int main(int argc, char *argv[]) {
 

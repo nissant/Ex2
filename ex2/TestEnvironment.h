@@ -7,6 +7,7 @@ Description		- This program impelments an application testing environment. Tests
 
 #ifndef TESTENVIRONMENT_H
 #define TESTENVIRONMENT_H
+#define _CRT_SECURE_NO_WARNINGS
 // Includes --------------------------------------------------------------------
 #include <windows.h>
 #include <stdbool.h>

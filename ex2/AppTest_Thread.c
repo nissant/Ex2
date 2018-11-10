@@ -19,7 +19,7 @@ void runProc(test_app *test_list)
 	retVal = CreateProcessSimple(test_list->app_path, &procinfo);
 	if (retVal == 0)
 	{
-		printf("Process Creation Failed!\n");
+		printf("Couldn't create process, error code %d\n", GetLastError());
 		return;
 	}
 
@@ -27,26 +27,41 @@ void runProc(test_app *test_list)
 		procinfo.hProcess,
 		TIMEOUT_IN_MILLISECONDS); /* Waiting for the process to end */
 
-	printf("WaitForSingleObject output: ");
+	printf("checking proccess status (wait code)\n"); //debug prints
 	switch (waitcode)
 	{
 	case WAIT_TIMEOUT:
 		printf("WAIT_TIMEOUT\n"); break;
 	case WAIT_OBJECT_0:
 		printf("WAIT_OBJECT_0\n"); break;
-	default:
-		printf("0x%x\n", waitcode);
+	case WAIT_FAILED:
+		printf("WAIT_FAILED\n");
 	}
 
 	if (waitcode == WAIT_TIMEOUT) /* Process is still alive */
 	{
-		printf("Process was not terminated before timeout!\n"
-			"Terminating brutally!\n");
-		TerminateProcess(
-			procinfo.hProcess,
-			BRUTAL_TERMINATION_CODE); /* Terminating process with an exit code of 55h */
-		Sleep(10); /* Waiting a few milliseconds for the process to terminate */
+		printf("Process did not finish before timeout!\n");
+		strcpy(test_list->app_test_results, "Timed out");
+		return;
 	}
+	if (waitcode == WAIT_FAILED) /* status check failed running */
+	{
+		printf("Couldn't check process status (wait code), error code %d\n", GetLastError());
+		return;		//need to check what to do if there is failure 
+	}
+	if (waitcode == WAIT_OBJECT_0) /* proccess ended. need to check results */
+	{
+		GetExitCodeProcess(procinfo.hProcess, &exitcode);
+		if (exitcode != 0)
+		{
+			printf("program crashed. exit code is non zero\n");
+			char tmp_str[]
+			strcpy(test_list->app_test_results, "Crashed %d",);
+
+
+		}
+	}
+
 
 
 
