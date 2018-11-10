@@ -15,6 +15,7 @@ void runProc(test_app *test_list)
 	DWORD				waitcode;
 	DWORD				exitcode;
 	BOOL				retVal;
+	int					res;
 
 	retVal = CreateProcessSimple(test_list->app_path, &procinfo);
 	if (retVal == 0)
@@ -55,16 +56,32 @@ void runProc(test_app *test_list)
 		if (exitcode != 0)
 		{
 			printf("program crashed. exit code is non zero\n");
-			char tmp_str[]
-			strcpy(test_list->app_test_results, "Crashed %d",);
-
-
+			char tmp_str[100];
+			itoa(exitcode, tmp_str, 10);
+			strcpy(test_list->app_test_results, "Crashed ");
+			strcat(test_list->app_test_results, tmp_str);
+			return;
+		}
+		else     // program exit code is 0. need to compare results
+		{
+			res = CompareResults(test_list); // need to update
+			if (res == 0)
+			{
+				strcpy(test_list->app_test_results, "Succeeded");
+				return;
+			}
+			else
+			{
+				strcpy(test_list->app_test_results, "Failed");
+				return;
+			}
 		}
 	}
+}
 
-
-
-
+int CompareResults(test_app *test_list)
+{
+	// the function comapres two text files.
 }
 
 BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr)
