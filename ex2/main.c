@@ -9,7 +9,6 @@ written in text output file once all threads have terminated.
 #include "TestEnvironment.h"
 
 
-
 int main(int argc, char *argv[]) {
 
 	// Check that minimal cmd line args are present - 
@@ -17,6 +16,9 @@ int main(int argc, char *argv[]) {
 		printf("Not enough input arguments!");
 		exit(EXIT_FAILURE);
 	}
+
+	printf("%s", argv[0]);
+
 	// Create test list
 	test_app *test_list = NULL;
 	if (createAppTestList(argv[2],&test_list) != 0) {

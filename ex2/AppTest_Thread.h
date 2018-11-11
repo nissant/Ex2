@@ -7,10 +7,16 @@ written in text output file once all threads have terminated.
 
 
 #ifndef APPTEST_THREAD_H
-#define APPTEST_THREAD_H
-#define _CRT_SECURE_NO_WARNINGS
-#define _CRT_NONSTDC_NO_WARNINGS // need this for itoa func.
+	#include "TestEnvironment.h"
 
-#define TIMEOUT_IN_MILLISECONDS 10000
+	#define APPTEST_THREAD_H
+	#define _CRT_SECURE_NO_WARNINGS
+	#define _CRT_NONSTDC_NO_WARNINGS // need this for itoa func.
+
+	#define TIMEOUT_IN_MILLISECONDS 10000
+
+	// Function Declarations -------------------------------------------------------
+	BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr);
+	int CompareResults(test_app *lst_ptr);
 
 #endif

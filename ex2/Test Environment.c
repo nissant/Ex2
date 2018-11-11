@@ -33,7 +33,7 @@ Description –
 Parameters	– 
 Returns		– 0 for success, -1 for failure
 */
-int createAppTestList(char *tst_file_path, test_app **test_list_ptr) {
+int createAppTestList(char *tst_file_path, test_app **lst_ptr) {
 
 	test_app *tmp_t = NULL;
 	char line[MAX_LINE_LEN];
@@ -65,7 +65,7 @@ Description –
 Parameters	–
 Returns		– 0 for success, -1 for failure
 */
-int createTestResults(char *report_file_path[]) {
+int createTestResults(char *report_file_path, test_app *lst_ptr) {
 
 	// Set test results output file for writing
 	FILE *fp_results = fopen(report_file_path, "w");
@@ -74,6 +74,7 @@ int createTestResults(char *report_file_path[]) {
 		printf("Failed to open test results file for writing\n");
 		exit(1);
 	}
+	return 0;
 }
 
 /*
@@ -215,7 +216,7 @@ Description – The function receive pointer to the head of tests list and free's 
 Parameters	– *list_head - pointer to the head of the tests list.
 Returns		– Nothing
 */
-void ClearTestList(test_app *tst_lst)
+void ClearTestList(test_app *lst_ptr)
 {
 	test_app *tmp_t;
 	while (tst_lst != NULL) // while list is not empty

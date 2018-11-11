@@ -6,8 +6,9 @@ written in text output file once all threads have terminated.
 */
 
 
-#include "TestEnvironment.h"
+
 #include "AppTest_Thread.h"
+
 
 void runProc(test_app *test_list)
 {
@@ -16,18 +17,22 @@ void runProc(test_app *test_list)
 	DWORD				exitcode;
 	BOOL				retVal;
 	int					res;
-
-	retVal = CreateProcessSimple(test_list->app_path, &procinfo);
+	TCHAR tmp_str[MAX_LINE_LEN];
+	
+	swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test_list->app_path);
+	retVal = CreateProcessSimple(tmp_str, &procinfo);
+	
 	if (retVal == 0)
 	{
 		printf("Couldn't create process, error code %d\n", GetLastError());
 		return;
 	}
-
+	
+	
 	waitcode = WaitForSingleObject(
 		procinfo.hProcess,
 		TIMEOUT_IN_MILLISECONDS); /* Waiting for the process to end */
-
+	
 	printf("checking proccess status (wait code)\n"); //debug prints
 	switch (waitcode)
 	{
@@ -57,7 +62,7 @@ void runProc(test_app *test_list)
 		{
 			printf("program crashed. exit code is non zero\n");
 			char tmp_str[100];
-			itoa(exitcode, tmp_str, 10);
+			_itoa(exitcode, tmp_str, 10);
 			strcpy(test_list->app_test_results, "Crashed ");
 			strcat(test_list->app_test_results, tmp_str);
 			return;
@@ -77,6 +82,8 @@ void runProc(test_app *test_list)
 			}
 		}
 	}
+	
+	
 }
 
 int CompareResults(test_app *test_list)
