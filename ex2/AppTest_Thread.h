@@ -5,18 +5,18 @@ Description		- This program impelments an application testing environment. Tests
 written in text output file once all threads have terminated.
 */
 
+#include "TestEnvironment.h"
 
 #ifndef APPTEST_THREAD_H
-	#include "TestEnvironment.h"
+#define APPTEST_THREAD_H
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_WARNINGS // need this for itoa func.
 
-	#define APPTEST_THREAD_H
-	#define _CRT_SECURE_NO_WARNINGS
-	#define _CRT_NONSTDC_NO_WARNINGS // need this for itoa func.
+#define TIMEOUT_IN_MILLISECONDS 10000
 
-	#define TIMEOUT_IN_MILLISECONDS 10000
-
-	// Function Declarations -------------------------------------------------------
-	BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr);
-	int CompareResults(test_app *lst_ptr);
+// Function Declarations -------------------------------------------------------
+void runProc(test_app *test_list);
+BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr);
+int CompareResults(test_app *lst_ptr);
 
 #endif

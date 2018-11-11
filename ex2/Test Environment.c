@@ -7,7 +7,7 @@ written in text output file once all threads have terminated.
 
 // Includes --------------------------------------------------------------------
 #include "TestEnvironment.h"
-
+#define _CRT_SECURE_NO_WARNINGS
 
 // Function Definitions --------------------------------------------------------
 /*
@@ -22,8 +22,8 @@ void runTests(test_app *test_list_ptr) {
 	// Itterate over test list and open test threads
 	while (test_list_ptr != NULL) {
 		// Open new thread and pass to handler routine the test pointer
-		test_list_ptr->test_thread_handles = CreateThreadSimple(/* Eli's routine name*/, test_list_ptr, &test_list_ptr->test_thread_id);
-		test_list_ptr = test_list_ptr->next_test;
+		//test_list_ptr->test_thread_handles = CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id);
+		//test_list_ptr = test_list_ptr->next_test;
 	}
 }
 /*
@@ -51,7 +51,7 @@ int createAppTestList(char *tst_file_path, test_app **lst_ptr) {
 		tmp_t = MakeTestFromLine(line);			// create a test entry from the line
 		if (tmp_t == NULL)
 			return -1;
-		AddTestToList(test_list_ptr, tmp_t);	//add test to the test list
+		AddTestToList(lst_ptr, tmp_t);	//add test to the test list
 	}
 	fclose(fp_test);
 	return 0;
@@ -86,7 +86,7 @@ Returns		– Pointer to new test data entry
 */
 test_app *MakeTestFromLine(char *line)
 {
-	char c, *tmp_t, *location;
+	char *tmp_t, *location;
 	test_app *new_test;
 	new_test = (test_app*)malloc(sizeof(test_app));
 	if (NULL == new_test)
@@ -118,6 +118,29 @@ test_app *MakeTestFromLine(char *line)
 	strcpy(new_test->app_test_results, "");
 
 	return new_test;
+}
+
+/*
+Function AddTestToList
+------------------------
+Description – The function adds a new pilot to the pilots linked list
+Parameters	– **pilot_lst is pointer to a pointer to the head of the pilot list (Is output if list is empty and just created),
+*new_pilot is a pointer to the new pilot node that is to be added to the linked list
+Returns		– Nothing
+*/
+void AddTestToList(test_app **lst_ptr, test_app *new_test)
+{
+	test_app *temp_t = *lst_ptr;
+	if (temp_t == NULL)					// if list is empty
+	{
+		*lst_ptr = new_test;
+		return;
+	}
+	while (temp_t->next_test != NULL)
+	{
+		temp_t = temp_t->next_test;		//move pointer to the last test in the list
+	}
+	temp_t->next_test = new_test;
 }
 
 /*
@@ -219,10 +242,10 @@ Returns		– Nothing
 void ClearTestList(test_app *lst_ptr)
 {
 	test_app *tmp_t;
-	while (tst_lst != NULL) // while list is not empty
+	while (lst_ptr != NULL) // while list is not empty
 	{
-		tmp_t = tst_lst;
-		tst_lst = tst_lst->next_test;
+		tmp_t = lst_ptr;
+		lst_ptr = lst_ptr->next_test;
 		free(tmp_t);
 	}
 }

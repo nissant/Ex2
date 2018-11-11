@@ -17,11 +17,9 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("%s", argv[0]);
-
 	// Create test list
 	test_app *test_list = NULL;
-	if (createAppTestList(argv[2],&test_list) != 0) {
+	if (createAppTestList(argv[1],&test_list) != 0) {
 		printf("An error occurred during test list creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		exit(EXIT_FAILURE);
@@ -44,7 +42,7 @@ int main(int argc, char *argv[]) {
 	*/
 
 	// Create Test results file // TODO
-	if (createTestResults(argv[3]) != 0) {
+	if (createTestResults(argv[3], test_list) != 0) {
 		printf("An error occurred during results file creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		exit(EXIT_FAILURE);

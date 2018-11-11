@@ -8,7 +8,7 @@ written in text output file once all threads have terminated.
 
 
 #include "AppTest_Thread.h"
-
+#define _CRT_SECURE_NO_WARNINGS
 
 void runProc(test_app *test_list)
 {
@@ -89,6 +89,7 @@ void runProc(test_app *test_list)
 int CompareResults(test_app *test_list)
 {
 	// the function comapres two text files.
+	return 0;
 }
 
 BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr)
