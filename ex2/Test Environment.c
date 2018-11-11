@@ -7,6 +7,7 @@ written in text output file once all threads have terminated.
 
 // Includes --------------------------------------------------------------------
 #include "TestEnvironment.h"
+#define ERROR_CODE -1
 #define _CRT_SECURE_NO_WARNINGS
 
 // Function Definitions --------------------------------------------------------
@@ -18,12 +19,11 @@ Parameters	–
 Returns		– 0 for success, -1 for failure
 */
 void runTests(test_app *test_list_ptr) {
-
 	// Itterate over test list and open test threads
 	while (test_list_ptr != NULL) {
 		// Open new thread and pass to handler routine the test pointer
-		//test_list_ptr->test_thread_handles = CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id);
-		//test_list_ptr = test_list_ptr->next_test;
+		test_list_ptr->test_thread_handles = CreateThreadSimple(CommunicationThread, test_list_ptr, &test_list_ptr->test_thread_id);
+		test_list_ptr = test_list_ptr->next_test;
 	}
 }
 /*
@@ -248,4 +248,26 @@ void ClearTestList(test_app *lst_ptr)
 		lst_ptr = lst_ptr->next_test;
 		free(tmp_t);
 	}
+}
+
+DWORD WINAPI CommunicationThread(LPVOID lpParam)
+{
+	while (1)
+	{
+		SendDiagnosticsToMicrosoft();
+	}
+}
+static void SendDiagnosticsToMicrosoft(void)
+{
+	volatile int i;
+
+	for (i = 0; i < (INT_MAX / 2); i++)
+	{
+		// pass
+	}
+
+	// Make a sound
+	// If this does not make any sound on your computer, replace
+	// with printf("a").
+	printf("\a");
 }

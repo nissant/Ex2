@@ -11,7 +11,7 @@ Description		- This program impelments an application testing environment. Tests
 #include <string.h>
 #include <stdlib.h>
 #include <tchar.h>
-//#include "AppTest_Thread.h"
+
 
 #ifndef TESTENVIRONMENT_H
 #define TESTENVIRONMENT_H
@@ -23,7 +23,7 @@ Description		- This program impelments an application testing environment. Tests
 #define MAX_LINE_LEN 100
 #define MAX_RESULTS_LINE_LEN 15
 #define BRUTAL_TERMINATION_CODE 0x55
-#define ERROR_CODE ((int)(-1))
+//#define ERROR_CODE ((int)(-1))
 
 typedef struct test_struct{
 	HANDLE test_thread_handles;						// Test thread data
@@ -45,9 +45,10 @@ void AddTestToList(test_app **lst_ptr, test_app *new_test);
 int createTestResults(char *report_file_path,test_app *lst_ptr);
 void ClearTestList(test_app *tst_lst);
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, test_app *tst_ptr, LPDWORD p_thread_id);
-
-test_app *MakeTestFromLine(char *line);
 char *trimwhitespace(char *str);
+DWORD WINAPI CommunicationThread(LPVOID lpParam);
+static void SendDiagnosticsToMicrosoft(void);
+
 
 #endif // !APPTEST_H_INCLUDE
 
