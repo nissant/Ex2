@@ -6,10 +6,16 @@ written in text output file once all threads have terminated.
 */
 
 // Includes --------------------------------------------------------------------
+
 #include "TestEnvironment.h"
 
-
 int main(int argc, char *argv[]) {
+
+	int *test_counter;
+	HANDLE *thread_handles;
+	DWORD wait_code;
+	DWORD exit_code;
+	BOOL ret_val;
 
 	// Check that minimal cmd line args are present - 
 	if (argc < 3) {									
@@ -19,27 +25,28 @@ int main(int argc, char *argv[]) {
 
 	// Create test list
 	test_app *test_list = NULL;
-	if (createAppTestList(argv[1],&test_list) != 0) {
+	if (createAppTestList(argv[1],&test_list,test_counter) != 0) {
 		printf("An error occurred during test list creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		exit(EXIT_FAILURE);
 	}
-
+	//
+	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(*test_counter));
 	// Open test threads and call thread function
-	runTests(test_list);
+	if (runTests(test_list,thread_handles) != 0) {
+		printf("An error occurred when creating thread, couldn't complete the task!\n");
+		ClearTestList(test_list);
+		exit(EXIT_FAILURE);
+	}
 
-	// Wait for test threads to receive exit command and terminate
-	/* TODO
-		if (waitForTestThreads() != 0) {
 
-		}
-		wait_code = WaitForSingleObject(p_thread_handles[0], INFINITE);
-		if (WAIT_OBJECT_0 != wait_code)
-		{
-			printf("Error when waiting");
-			return ERROR_CODE;
-		}
-	*/
+	// Wait
+	wait_code = WaitForMultipleObjects((DWORD)test_counter,thread_handles, true ,INFINITE);
+	if (WAIT_OBJECT_0 != wait_code)
+	{
+		printf("Error when waiting\n");
+		return ERROR_CODE;
+	}
 
 	// Create Test results file // TODO
 	if (createTestResults(argv[3], test_list) != 0) {

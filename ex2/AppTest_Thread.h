@@ -15,7 +15,7 @@ written in text output file once all threads have terminated.
 #define TIMEOUT_IN_MILLISECONDS 10000
 
 // Function Declarations -------------------------------------------------------
-void runProc(test_app *test_list);
+DWORD WINAPI runProc(LPVOID lpParam);
 BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr);
 int CompareResults(test_app *lst_ptr);
 

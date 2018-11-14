@@ -7,6 +7,8 @@ written in text output file once all threads have terminated.
 
 // Includes --------------------------------------------------------------------
 #include "TestEnvironment.h"
+#include "AppTest_Thread.h"
+
 #define ERROR_CODE -1
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -18,13 +20,21 @@ Description –
 Parameters	–
 Returns		– 0 for success, -1 for failure
 */
-void runTests(test_app *test_list_ptr) {
+int runTests(test_app *test_list_ptr, HANDLE *thread_handles) {
+	int i = 0;
 	// Itterate over test list and open test threads
 	while (test_list_ptr != NULL) {
 		// Open new thread and pass to handler routine the test pointer
-		test_list_ptr->test_thread_handles = CreateThreadSimple(CommunicationThread, test_list_ptr, &test_list_ptr->test_thread_id);
+		test_list_ptr->test_thread_handles = CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id);
+		thread_handles[i] = test_list_ptr->test_thread_handles;
+		if (NULL != test_list_ptr->test_thread_handles)
+		{
+			return ERROR_CODE;
+		}
 		test_list_ptr = test_list_ptr->next_test;
+		i++;
 	}
+	return 0;
 }
 /*
 Function createAppTestList
@@ -33,10 +43,11 @@ Description –
 Parameters	– 
 Returns		– 0 for success, -1 for failure
 */
-int createAppTestList(char *tst_file_path, test_app **lst_ptr) {
+int createAppTestList(char *tst_file_path, test_app **lst_ptr,int *test_counter) {
 
 	test_app *tmp_t = NULL;
 	char line[MAX_LINE_LEN];
+	*test_counter = 0;
 
 	// Set test input file for reading
 	FILE *fp_test = fopen(tst_file_path, "r");
@@ -51,7 +62,8 @@ int createAppTestList(char *tst_file_path, test_app **lst_ptr) {
 		tmp_t = MakeTestFromLine(line);			// create a test entry from the line
 		if (tmp_t == NULL)
 			return -1;
-		AddTestToList(lst_ptr, tmp_t);	//add test to the test list
+		AddTestToList(lst_ptr, tmp_t);			//add test to the test list
+		*test_counter++;
 	}
 	fclose(fp_test);
 	return 0;
@@ -256,18 +268,4 @@ DWORD WINAPI CommunicationThread(LPVOID lpParam)
 	{
 		SendDiagnosticsToMicrosoft();
 	}
-}
-static void SendDiagnosticsToMicrosoft(void)
-{
-	volatile int i;
-
-	for (i = 0; i < (INT_MAX / 2); i++)
-	{
-		// pass
-	}
-
-	// Make a sound
-	// If this does not make any sound on your computer, replace
-	// with printf("a").
-	printf("\a");
 }

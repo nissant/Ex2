@@ -10,7 +10,7 @@ written in text output file once all threads have terminated.
 #include "AppTest_Thread.h"
 #define _CRT_SECURE_NO_WARNINGS
 
-void runProc(test_app *test_list)
+DWORD WINAPI runProc(LPVOID lpParam)
 {
 	PROCESS_INFORMATION procinfo;
 	DWORD				waitcode;
@@ -18,8 +18,10 @@ void runProc(test_app *test_list)
 	BOOL				retVal;
 	int					res;
 	TCHAR tmp_str[MAX_LINE_LEN];
+
+	test_app *test = (test_app*)lpParam; // Get pointer to test data to execute in this thread
 	
-	swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test_list->app_path);
+	swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_path); // Convert string to TCHAR
 	retVal = CreateProcessSimple(tmp_str, &procinfo);
 	
 	if (retVal == 0)
@@ -31,8 +33,11 @@ void runProc(test_app *test_list)
 	
 	waitcode = WaitForSingleObject(
 		procinfo.hProcess,
-		TIMEOUT_IN_MILLISECONDS); /* Waiting for the process to end */
+		TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
 	
+	printf("%s", test->app_path);
+
+	/* Commenting for testing application without thread function
 	printf("checking proccess status (wait code)\n"); //debug prints
 	switch (waitcode)
 	{
@@ -44,18 +49,19 @@ void runProc(test_app *test_list)
 		printf("WAIT_FAILED\n");
 	}
 
-	if (waitcode == WAIT_TIMEOUT) /* Process is still alive */
+	if (waitcode == WAIT_TIMEOUT) // Process is still alive
 	{
 		printf("Process did not finish before timeout!\n");
-		strcpy(test_list->app_test_results, "Timed out");
+		strcpy(test->app_test_results, "Timed out");
 		return;
 	}
-	if (waitcode == WAIT_FAILED) /* status check failed running */
+	
+	if (waitcode == WAIT_FAILED) //status check failed running
 	{
 		printf("Couldn't check process status (wait code), error code %d\n", GetLastError());
 		return;		//need to check what to do if there is failure 
 	}
-	if (waitcode == WAIT_OBJECT_0) /* proccess ended. need to check results */
+	if (waitcode == WAIT_OBJECT_0) //proccess ended. need to check results
 	{
 		GetExitCodeProcess(procinfo.hProcess, &exitcode);
 		if (exitcode != 0)
@@ -63,30 +69,30 @@ void runProc(test_app *test_list)
 			printf("program crashed. exit code is non zero\n");
 			char tmp_str[100];
 			_itoa(exitcode, tmp_str, 10);
-			strcpy(test_list->app_test_results, "Crashed ");
-			strcat(test_list->app_test_results, tmp_str);
+			strcpy(test->app_test_results, "Crashed ");
+			strcat(test->app_test_results, tmp_str);
 			return;
 		}
 		else     // program exit code is 0. need to compare results
 		{
-			res = CompareResults(test_list); // need to update
+			res = CompareResults(test); // need to update
 			if (res == 0)
 			{
-				strcpy(test_list->app_test_results, "Succeeded");
+				strcpy(test->app_test_results, "Succeeded");
 				return;
 			}
 			else
 			{
-				strcpy(test_list->app_test_results, "Failed");
+				strcpy(test->app_test_results, "Failed");
 				return;
 			}
 		}
 	}
-	
+	*/
 	
 }
 
-int CompareResults(test_app *test_list)
+int CompareResults(test_app *test)
 {
 	// the function comapres two text files.
 	return 0;

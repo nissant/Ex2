@@ -23,7 +23,6 @@ Description		- This program impelments an application testing environment. Tests
 #define MAX_LINE_LEN 100
 #define MAX_RESULTS_LINE_LEN 15
 #define BRUTAL_TERMINATION_CODE 0x55
-//#define ERROR_CODE ((int)(-1))
 
 typedef struct test_struct{
 	HANDLE test_thread_handles;						// Test thread data
@@ -38,17 +37,14 @@ typedef struct test_struct{
 
 // Function Declarations -------------------------------------------------------
 
-void runTests(test_app *test_list_ptr);
-int createAppTestList(char *tst_file_path, test_app **lst_ptr);
+int runTests(test_app *test_list_ptr);
+int createAppTestList(char *tst_file_path, test_app **lst_ptr, int *test_counter);
 test_app *MakeTestFromLine(char *line);
 void AddTestToList(test_app **lst_ptr, test_app *new_test);
 int createTestResults(char *report_file_path,test_app *lst_ptr);
 void ClearTestList(test_app *tst_lst);
 static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, test_app *tst_ptr, LPDWORD p_thread_id);
 char *trimwhitespace(char *str);
-DWORD WINAPI CommunicationThread(LPVOID lpParam);
-static void SendDiagnosticsToMicrosoft(void);
-
 
 #endif // !APPTEST_H_INCLUDE
 
