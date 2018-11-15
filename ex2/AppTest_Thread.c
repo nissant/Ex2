@@ -17,6 +17,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	DWORD				exitcode;
 	BOOL				retVal;
 	int					res;
+	TCHAR				command[] = _T("test1.exe");
 	//TCHAR tmp_str[MAX_LINE_LEN];
 
 	test_app *test = (test_app*)lpParam; // Get pointer to test data to execute in this thread
@@ -24,7 +25,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);
 
 	//swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_cmd_line); // Convert string to TCHAR
-	retVal = CreateProcessSimple(_T("c:\\windows\\notepad.exe"), &procinfo); //"c:\\windows\\notepad.exe"
+	retVal = CreateProcessSimple(command, &procinfo); //"c:\\windows\\notepad.exe"
 
 	if (retVal == 0)
 	{
@@ -103,7 +104,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr
 															  /* parameters of CreateProcess(). */
 
 	return CreateProcess(NULL,	/*  No module name (use command line). */
-		CommandLine,			/*  Command line. */
+		_T("test1"),			/*  Command line. */
 		NULL,					/*  Process handle not inheritable. */
 		NULL,					/*  Thread handle not inheritable. */
 		FALSE,					/*  Set handle inheritance to FALSE. */
