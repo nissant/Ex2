@@ -14,23 +14,19 @@ written in text output file once all threads have terminated.
 
 // Function Definitions --------------------------------------------------------
 /*
-Function runTests
+Function runTestThreads
 ------------------------
 Description –
 Parameters	–
 Returns		– 0 for success, -1 for failure
 */
-int runTests(test_app *test_list_ptr, HANDLE *thread_handles) {
+int runTestThreads(test_app *test_list_ptr, HANDLE *thread_handles) {
 	int i = 0;
 	// Itterate over test list and open test threads
 	while (test_list_ptr != NULL) {
 		// Open new thread and pass to handler routine the test pointer
 		test_list_ptr->test_thread_handles = CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id);
 		thread_handles[i] = test_list_ptr->test_thread_handles;
-		if (NULL != test_list_ptr->test_thread_handles)
-		{
-			return ERROR_CODE;
-		}
 		test_list_ptr = test_list_ptr->next_test;
 		i++;
 	}
@@ -47,7 +43,8 @@ int createAppTestList(char *tst_file_path, test_app **lst_ptr,int *test_counter)
 
 	test_app *tmp_t = NULL;
 	char line[MAX_LINE_LEN];
-	*test_counter = 0;
+	
+	int counter = 0;
 
 	// Set test input file for reading
 	FILE *fp_test = fopen(tst_file_path, "r");
@@ -63,8 +60,9 @@ int createAppTestList(char *tst_file_path, test_app **lst_ptr,int *test_counter)
 		if (tmp_t == NULL)
 			return -1;
 		AddTestToList(lst_ptr, tmp_t);			//add test to the test list
-		*test_counter++;
+		counter++;
 	}
+	*test_counter = counter;
 	fclose(fp_test);
 	return 0;
 
@@ -98,28 +96,23 @@ Returns		– Pointer to new test data entry
 */
 test_app *MakeTestFromLine(char *line)
 {
-	char *tmp_t, *location;
+	char *tmp_t = line, *location = NULL;
 	test_app *new_test;
+
 	new_test = (test_app*)malloc(sizeof(test_app));
-	if (NULL == new_test)
+	if (NULL == new_test) // Handle malloc fail
 	{
 		return new_test;
 	}
 
 	line = trimwhitespace(line); // Trim leading/trailing whitespace
-	tmp_t = line;
 
-	// Copy test application path
-	location = strchr(tmp_t, ' ');
-	*location = '\0';
-	strcpy(new_test->app_path, tmp_t);		
-	tmp_t = location + 1;
 
-	// Find and copy application command line arguments
+	// Find and copy application path with command line arguments
 	location = strrchr(tmp_t, ' ');
-	if (location) { // Command line arguments present in line
+	if (location) { 
 		*location = '\0';
-		strcpy(new_test->app_args, tmp_t);
+		strcpy(new_test->app_cmd_line, tmp_t);
 		tmp_t = location + 1;
 	}
 	
@@ -262,10 +255,4 @@ void ClearTestList(test_app *lst_ptr)
 	}
 }
 
-DWORD WINAPI CommunicationThread(LPVOID lpParam)
-{
-	while (1)
-	{
-		SendDiagnosticsToMicrosoft();
-	}
-}
+

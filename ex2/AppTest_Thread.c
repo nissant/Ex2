@@ -17,27 +17,24 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	DWORD				exitcode;
 	BOOL				retVal;
 	int					res;
-	TCHAR tmp_str[MAX_LINE_LEN];
+	//TCHAR tmp_str[MAX_LINE_LEN];
 
 	test_app *test = (test_app*)lpParam; // Get pointer to test data to execute in this thread
 	
-	swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_path); // Convert string to TCHAR
-	retVal = CreateProcessSimple(tmp_str, &procinfo);
-	
+	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);
+
+	//swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_cmd_line); // Convert string to TCHAR
+	retVal = CreateProcessSimple(_T("c:\\windows\\notepad.exe"), &procinfo); //"c:\\windows\\notepad.exe"
+
 	if (retVal == 0)
 	{
 		printf("Couldn't create process, error code %d\n", GetLastError());
-		return;
 	}
-	
-	
-	waitcode = WaitForSingleObject(
-		procinfo.hProcess,
-		TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
-	
-	printf("%s", test->app_path);
+
+	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
 
 	/* Commenting for testing application without thread function
+
 	printf("checking proccess status (wait code)\n"); //debug prints
 	switch (waitcode)
 	{
@@ -89,7 +86,6 @@ DWORD WINAPI runProc(LPVOID lpParam)
 		}
 	}
 	*/
-	
 }
 
 int CompareResults(test_app *test)
@@ -106,7 +102,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr
 															  /* This is equivalent to what we are doing by supplying NULL to most other */
 															  /* parameters of CreateProcess(). */
 
-	return CreateProcess(NULL, /*  No module name (use command line). */
+	return CreateProcess(NULL,	/*  No module name (use command line). */
 		CommandLine,			/*  Command line. */
 		NULL,					/*  Process handle not inheritable. */
 		NULL,					/*  Thread handle not inheritable. */

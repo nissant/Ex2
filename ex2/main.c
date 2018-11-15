@@ -11,11 +11,11 @@ written in text output file once all threads have terminated.
 
 int main(int argc, char *argv[]) {
 
-	int *test_counter;
 	HANDLE *thread_handles;
 	DWORD wait_code;
 	DWORD exit_code;
 	BOOL ret_val;
+	
 
 	// Check that minimal cmd line args are present - 
 	if (argc < 3) {									
@@ -24,36 +24,39 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Create test list
+	int test_counter = 0;
+	int *test_counter_ptr = &test_counter;
 	test_app *test_list = NULL;
-	if (createAppTestList(argv[1],&test_list,test_counter) != 0) {
+	if (createAppTestList(argv[1],&test_list, test_counter_ptr) != 0) {
 		printf("An error occurred during test list creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		exit(EXIT_FAILURE);
 	}
-	//
-	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(*test_counter));
+
 	// Open test threads and call thread function
-	if (runTests(test_list,thread_handles) != 0) {
+	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(test_counter));
+	if (runTestThreads(test_list,thread_handles) != 0) {
 		printf("An error occurred when creating thread, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		exit(EXIT_FAILURE);
 	}
 
-
-	// Wait
+	// Wait for threads to finish
 	wait_code = WaitForMultipleObjects((DWORD)test_counter,thread_handles, true ,INFINITE);
 	if (WAIT_OBJECT_0 != wait_code)
 	{
-		printf("Error when waiting\n");
-		return ERROR_CODE;
+		printf("Error while waiting for threads to finish!\n");
+		exit(EXIT_FAILURE);
 	}
 
+	/*
 	// Create Test results file // TODO
 	if (createTestResults(argv[3], test_list) != 0) {
 		printf("An error occurred during results file creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		exit(EXIT_FAILURE);
 	}
+	*/
 
 	ClearTestList(test_list);
 	exit(EXIT_SUCCESS);

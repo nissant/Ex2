@@ -27,8 +27,7 @@ Description		- This program impelments an application testing environment. Tests
 typedef struct test_struct{
 	HANDLE test_thread_handles;						// Test thread data
 	DWORD test_thread_id;							// Test thread data
-	char app_path[MAX_LINE_LEN];					// String of size MAX_LINE_LEN holding app full path
-	char app_args[MAX_LINE_LEN];					// String of size MAX_LINE_LEN holding app complete argument string
+	char app_cmd_line[MAX_LINE_LEN];				// String of size MAX_LINE_LEN holding app full path with args
 	char app_exp_results_path[MAX_LINE_LEN];		// String of size MAX_LINE_LEN holding app expected resuts full path
 	char app_test_results[MAX_RESULTS_LINE_LEN];	// String of size MAX_RESULTS_LINE_LEN holding test results: 
 													// "Succeeded", "Timed Out", "Failed", "Crashed -xx", "NULL" for test not finished
@@ -37,7 +36,7 @@ typedef struct test_struct{
 
 // Function Declarations -------------------------------------------------------
 
-int runTests(test_app *test_list_ptr);
+int runTestThreads(test_app *test_list_ptr, HANDLE *thread_handles);
 int createAppTestList(char *tst_file_path, test_app **lst_ptr, int *test_counter);
 test_app *MakeTestFromLine(char *line);
 void AddTestToList(test_app **lst_ptr, test_app *new_test);
