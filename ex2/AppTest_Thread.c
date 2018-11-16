@@ -10,6 +10,8 @@ written in text output file once all threads have terminated.
 #include "AppTest_Thread.h"
 #define _CRT_SECURE_NO_WARNINGS
 
+
+
 DWORD WINAPI runProc(LPVOID lpParam)
 {
 	PROCESS_INFORMATION procinfo;
@@ -18,14 +20,21 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	BOOL				retVal;
 	int					res;
 
+	char tmp_str[MAX_LINE_LEN], path_str[MAX_LINE_LEN], *tmp_p;					// Used to extract the path of program that is going to run in the proccess
 	TCHAR command[MAX_LINE_LEN];			// App full command line string with arguments
 	TCHAR app_wdirectory[MAX_LINE_LEN];		// App working directory path for generated output .txt files
 
 	test_app *test = (test_app*)lpParam;	// Get pointer to test data to execute in this thread
 	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);	// Just testing...
 	
+	strcpy(tmp_str, test->app_cmd_line);	//used to extract the path of the progaram 
+	tmp_p = strrchr(tmp_str, '\\');
+	*tmp_p = '\0';
+	strcpy(path_str, tmp_str);
+
+	swprintf(app_wdirectory, MAX_LINE_LEN, L"%hs", path_str);	// Convert path string to TCHAR
 	swprintf(command, MAX_LINE_LEN, L"%hs", test->app_cmd_line);	// Convert cmd string to TCHAR
-	retVal = CreateProcessSimple(command,_T("D:\\") ,&procinfo);	// TODO - Change app working directory in app_wdirectory variable (From app path string)
+	retVal = CreateProcessSimple(command,app_wdirectory,&procinfo);	
 
 	if (retVal == 0)
 	{
@@ -33,10 +42,6 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	}
 
 	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
-
-	// * Tested to this point - Eli's Code here:
-
-	/* Commenting for testing application without thread function
 
 	printf("checking proccess status (wait code)\n"); //debug prints
 	switch (waitcode)
@@ -67,15 +72,15 @@ DWORD WINAPI runProc(LPVOID lpParam)
 		if (exitcode != 0)
 		{
 			printf("program crashed. exit code is non zero\n");
-			char tmp_str[100];
-			_itoa(exitcode, tmp_str, 10);
+			char code[MAX_LINE_LEN];
+			_itoa(exitcode, code, 10);
 			strcpy(test->app_test_results, "Crashed ");
-			strcat(test->app_test_results, tmp_str);
+			strcat(test->app_test_results, code);
 			return;
 		}
 		else     // program exit code is 0. need to compare results
 		{
-			res = CompareResults(test); // need to update
+			res = CompareResults(test, path_str); // need to update
 			if (res == 0)
 			{
 				strcpy(test->app_test_results, "Succeeded");
@@ -88,14 +93,51 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			}
 		}
 	}
-	*/
+	
 	return 0;
 }
 
-int CompareResults(test_app *test)
+int CompareResults(test_app *test, char *path_str)
 {
 	// the function comapres two text files.
-	return 0;
+	char tmp_str[MAX_LINE_LEN], *tmp_str_p, *tmp_str_p2, path_to_result[MAX_LINE_LEN]; // variables to create string with the path of the actual results
+	FILE *fp_expected, *fp_actual;
+	char expected, actual;
+	//char line_expected[MAX_LINE_LEN], line_actual[MAX_LINE_LEN]; // variables used to compare lines from expected results and actuak result
+	int not_same_res = 0;
+
+	strcpy(tmp_str, test->app_cmd_line); //copy cmd line to tmp_str
+	tmp_str_p = strrchr(tmp_str, '\\'); // put pointer to the last slash before program name
+	tmp_str_p++;						// put pointer to begining of program name
+	tmp_str_p2 = strchr(tmp_str_p, '.');   // find the '.' of ".exe"
+	*tmp_str_p2 = '\0';						//replace '.' with '\0'
+	strcpy(tmp_str, tmp_str_p); // put only the program name to tmp_str
+	strcat(tmp_str, ".txt");   // add .txt to program name
+	strcpy(path_to_result, path_str); // put the program path to path_to_result
+	strcat(path_to_result, tmp_str);	// add <program name>.txt to the path. this is the final path.
+
+	fp_expected = fopen(test->app_exp_results_path, "r");
+	fp_actual = fopen(path_to_result, "r");
+	if (fp_expected == NULL || fp_actual == NULL)
+		printf("error openining expected and/or actual test results files\n");
+	expected = getc(fp_expected);
+	actual = getc(fp_actual);
+	while (expected != EOF & actual != EOF)
+	{
+		if (expected == actual)
+		{
+			expected = getc(fp_expected);
+			actual = getc(fp_actual);
+			continue;
+		}
+			
+		else
+			return 1; // files are NOT equal
+	}
+	if (expected == actual)
+		return 0;	//files are equal
+	else
+		return 1;	//files are NOT equal
 }
 
 BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr)
