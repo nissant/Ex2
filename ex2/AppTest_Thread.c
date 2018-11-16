@@ -17,15 +17,14 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	DWORD				exitcode;
 	BOOL				retVal;
 	int					res;
-	TCHAR				command[] = _T("test1.exe");
-	//TCHAR tmp_str[MAX_LINE_LEN];
+	TCHAR tmp_str[MAX_LINE_LEN];
 
 	test_app *test = (test_app*)lpParam; // Get pointer to test data to execute in this thread
 	
 	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);
+	swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_cmd_line); // Convert string to TCHAR
 
-	//swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_cmd_line); // Convert string to TCHAR
-	retVal = CreateProcessSimple(command, &procinfo); //"c:\\windows\\notepad.exe"
+	retVal = CreateProcessSimple(tmp_str, &procinfo); 
 
 	if (retVal == 0)
 	{
@@ -33,6 +32,8 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	}
 
 	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
+
+	// * Tested to this point - Eli's Code here:
 
 	/* Commenting for testing application without thread function
 
@@ -87,6 +88,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 		}
 	}
 	*/
+	return 0;
 }
 
 int CompareResults(test_app *test)
@@ -104,7 +106,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr
 															  /* parameters of CreateProcess(). */
 
 	return CreateProcess(NULL,	/*  No module name (use command line). */
-		_T("test1"),			/*  Command line. */
+		CommandLine,			/*  Command line. */
 		NULL,					/*  Process handle not inheritable. */
 		NULL,					/*  Thread handle not inheritable. */
 		FALSE,					/*  Set handle inheritance to FALSE. */
