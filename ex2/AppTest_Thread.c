@@ -103,8 +103,6 @@ int CompareResults(test_app *test, char *path_str)
 	char tmp_str[MAX_LINE_LEN], *tmp_str_p, *tmp_str_p2, path_to_result[MAX_LINE_LEN]; // variables to create string with the path of the actual results
 	FILE *fp_expected, *fp_actual;
 	char expected, actual;
-	//char line_expected[MAX_LINE_LEN], line_actual[MAX_LINE_LEN]; // variables used to compare lines from expected results and actuak result
-	int not_same_res = 0;
 
 	strcpy(tmp_str, test->app_cmd_line); //copy cmd line to tmp_str
 	tmp_str_p = strrchr(tmp_str, '\\'); // put pointer to the last slash before program name
@@ -119,7 +117,10 @@ int CompareResults(test_app *test, char *path_str)
 	fp_expected = fopen(test->app_exp_results_path, "r");
 	fp_actual = fopen(path_to_result, "r");
 	if (fp_expected == NULL || fp_actual == NULL)
+	{
 		printf("error openining expected and/or actual test results files\n");
+		exit(1);
+	}	
 	expected = getc(fp_expected);
 	actual = getc(fp_actual);
 	while (expected != EOF & actual != EOF)
