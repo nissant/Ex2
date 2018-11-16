@@ -17,14 +17,15 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	DWORD				exitcode;
 	BOOL				retVal;
 	int					res;
-	TCHAR tmp_str[MAX_LINE_LEN];
 
-	test_app *test = (test_app*)lpParam; // Get pointer to test data to execute in this thread
+	TCHAR command[MAX_LINE_LEN];			// App full command line string with arguments
+	TCHAR app_wdirectory[MAX_LINE_LEN];		// App working directory path for generated output .txt files
+
+	test_app *test = (test_app*)lpParam;	// Get pointer to test data to execute in this thread
+	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);	// Just testing...
 	
-	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);
-	swprintf(tmp_str, MAX_LINE_LEN, L"%hs", test->app_cmd_line); // Convert string to TCHAR
-
-	retVal = CreateProcessSimple(tmp_str, &procinfo); 
+	swprintf(command, MAX_LINE_LEN, L"%hs", test->app_cmd_line);	// Convert cmd string to TCHAR
+	retVal = CreateProcessSimple(command,_T("D:\\") ,&procinfo);	// TODO - Change app working directory in app_wdirectory variable (From app path string)
 
 	if (retVal == 0)
 	{
@@ -97,7 +98,7 @@ int CompareResults(test_app *test)
 	return 0;
 }
 
-BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr)
+BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr)
 {
 	STARTUPINFO	startinfo = { sizeof(STARTUPINFO), NULL, 0 }; /* <ISP> here we */
 															  /* initialize a "Neutral" STARTUPINFO variable. Supplying this to */
@@ -112,7 +113,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, PROCESS_INFORMATION *ProcessInfoPtr
 		FALSE,					/*  Set handle inheritance to FALSE. */
 		NORMAL_PRIORITY_CLASS,	/*  creation/priority flags. */
 		NULL,					/*  Use parent's environment block. */
-		NULL,					/*  Use parent's starting directory. */
+		app_wdirectory,					/*  Use parent's starting directory. */
 		&startinfo,				/*  Pointer to STARTUPINFO structure. */
 		ProcessInfoPtr			/*  Pointer to PROCESS_INFORMATION structure. */
 	);

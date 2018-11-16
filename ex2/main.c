@@ -43,8 +43,7 @@ int main(int argc, char *argv[]) {
 
 	// Wait for threads to finish
 	wait_code = WaitForMultipleObjects((DWORD)test_counter,thread_handles, true ,INFINITE);
-	if (WAIT_OBJECT_0 != wait_code)
-	{
+	if (WAIT_OBJECT_0 != wait_code){
 		printf("Error while waiting for threads to finish!\n");
 		exit(EXIT_FAILURE);
 	}
