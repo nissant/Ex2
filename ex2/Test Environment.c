@@ -12,26 +12,34 @@ written in text output file once all threads have terminated.
 #define ERROR_CODE -1
 #define _CRT_SECURE_NO_WARNINGS
 
+
 // Function Definitions --------------------------------------------------------
 /*
 Function runTestThreads
 ------------------------
-Description –
-Parameters	–
+Description – The function opens the tests threads and returns a list of thread handles
+Parameters	– *test_list_ptr pointer to test list, *thread_handles pointer to array of list handles
 Returns		– 0 for success, -1 for failure
 */
 int runTestThreads(test_app *test_list_ptr, HANDLE *thread_handles) {
 	int i = 0;
+	HANDLE tmp_thread_handle;
+	HANDLE *tmp_thread_handle_ptr = &tmp_thread_handle;
 	// Itterate over test list and open test threads
 	while (test_list_ptr != NULL) {
-		// Open new thread and pass to handler routine the test pointer
-		test_list_ptr->test_thread_handles = CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id);
+		// Open new thread and pass to handler routine the test pointer to data
+		if (CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id, tmp_thread_handle_ptr) != 0){
+			return -1;
+		}
+		test_list_ptr->test_thread_handles = tmp_thread_handle;
 		thread_handles[i] = test_list_ptr->test_thread_handles;
 		test_list_ptr = test_list_ptr->next_test;
 		i++;
 	}
 	return 0;
 }
+
+
 /*
 Function createAppTestList
 ------------------------
@@ -69,29 +77,37 @@ int createAppTestList(char *tst_file_path, test_app **lst_ptr,int *test_counter)
 }
 
 /*
-Function createTestResults
+Function createResultsFile
 ------------------------
-Description –
-Parameters	–
+Description – This function generates a test report in specified path. 
+			##The tests are assumed to be executed successfully with results string present!##
+Parameters	– *report_file_path - pointer to the file path string, *lst_ptr - pointer the head of test linked list
 Returns		– 0 for success, -1 for failure
 */
-int createTestResults(char *report_file_path, test_app *lst_ptr) {
+
+int createResultsFile(char *report_file_path, test_app *lst_ptr) {
 
 	// Set test results output file for writing
+	int test_count = 1;
 	FILE *fp_results = fopen(report_file_path, "w");
 	if (fp_results == NULL)							// Handle errors
 	{
-		printf("Failed to open test results file for writing\n");
-		exit(1);
+		return (-1);
+	}
+
+	while (lst_ptr != NULL) {
+		fprintf(fp_results, "test #%d : %s\n", test_count, lst_ptr->app_test_results);
+		test_count++;
+		lst_ptr = lst_ptr->next_test;
 	}
 	return 0;
 }
 
 /*
-Function MakePilotFromLine
+Function MakeTestFromLine
 ------------------------
-Description – the function gets a string containing pilot data and creates a pilots strcut.
-Parameters	– *line is a string which includes pilot data.
+Description – The function gets a string containing test data and creates a test instance.
+Parameters	– *line is a string which includes test data.
 Returns		– Pointer to new test data entry
 */
 test_app *MakeTestFromLine(char *line)
@@ -128,9 +144,9 @@ test_app *MakeTestFromLine(char *line)
 /*
 Function AddTestToList
 ------------------------
-Description – The function adds a new pilot to the pilots linked list
-Parameters	– **pilot_lst is pointer to a pointer to the head of the pilot list (Is output if list is empty and just created),
-*new_pilot is a pointer to the new pilot node that is to be added to the linked list
+Description – The function adds a new test to the app tests linked list
+Parameters	– **lst_ptr is pointer to a pointer to the head of the pilot list (Is output if list is empty and just created),
+				*new_test is a pointer to the new pilot node that is to be added to the linked list
 Returns		– Nothing
 */
 void AddTestToList(test_app **lst_ptr, test_app *new_test)
@@ -166,29 +182,32 @@ void AddTestToList(test_app **lst_ptr, test_app *new_test)
 * Notes:
 *   This function is just a wrapper for CreateThread.
 */
-static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,test_app *tst_ptr,LPDWORD p_thread_id)
+int CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,test_app *tst_ptr,LPDWORD p_thread_id, HANDLE *thread_handle_ptr)
 {
 	HANDLE thread_handle;
+	
+	if (NULL == p_start_routine)
+	{
+		printf("Received null pointer for thread handler");
+		return -1;
+	}
 
 	if (NULL == p_start_routine)
 	{
-		printf("Error when creating a thread");
 		printf("Received null pointer for thread routine");
-		exit(ERROR_CODE);
+		return -1;
 	}
 
 	if (NULL == p_thread_id)
 	{
-		printf("Error when creating a thread");
 		printf("Received null pointer for thread ID");
-		exit(ERROR_CODE);
+		return -1;
 	}
 
 	if (NULL == tst_ptr)
 	{
-		printf("Error when creating a thread");
 		printf("Received null pointer for routine argument");
-		exit(ERROR_CODE);
+		return -1;
 	}
 
 	thread_handle = CreateThread(
@@ -202,20 +221,19 @@ static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,test_app
 	if (NULL == thread_handle)
 	{
 		printf("Couldn't create thread\n");
-		exit(ERROR_CODE);
+		return -1;
 	}
-
-	return thread_handle;
+	
+	*thread_handle_ptr = thread_handle;
+	return 0;
 }
 
 /*
-Function createTestResults
+Function: trimwhitespace
 ------------------------
-Description – This function returns a pointer to a substring of the original string. If the given string was allocated dynamically, the caller must not overwrite
-that pointer with the returned value, since the original pointer must be deallocated using the same allocator with which it was allocated.  
-The return value must NOT be deallocated using free() etc.
-Parameters	– Pointer to the original string
-Returns		– Pointer to a substring of the original string
+Description – The function receive pointer to a string and trimms the string from white spaces
+Parameters	– *str is a pointer to a string to be trimmed.
+Returns		– Retrun pointer to trimmed string
 */
 char *trimwhitespace(char *str)
 {
@@ -241,7 +259,7 @@ char *trimwhitespace(char *str)
 Function: ClearTestList
 ------------------------
 Description – The function receive pointer to the head of tests list and free's allocated memory
-Parameters	– *list_head - pointer to the head of the tests list.
+Parameters	– *lst_ptr is a pointer to the head of the tests list.
 Returns		– Nothing
 */
 void ClearTestList(test_app *lst_ptr)

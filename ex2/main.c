@@ -15,11 +15,15 @@ int main(int argc, char *argv[]) {
 	DWORD wait_code;
 	DWORD exit_code;
 	BOOL ret_val;
-	
 
-	// Check that minimal cmd line args are present - 
+	// Check that exactly 2 cmd line args are present
 	if (argc < 3) {									
 		printf("Not enough input arguments!");
+		exit(EXIT_FAILURE);
+	}
+
+	if (argc > 3) {
+		printf("Tpp many input arguments!");
 		exit(EXIT_FAILURE);
 	}
 
@@ -38,6 +42,7 @@ int main(int argc, char *argv[]) {
 	if (runTestThreads(test_list,thread_handles) != 0) {
 		printf("An error occurred when creating thread, couldn't complete the task!\n");
 		ClearTestList(test_list);
+		free(thread_handles);
 		exit(EXIT_FAILURE);
 	}
 
@@ -45,18 +50,23 @@ int main(int argc, char *argv[]) {
 	wait_code = WaitForMultipleObjects((DWORD)test_counter,thread_handles, true ,INFINITE);
 	if (WAIT_OBJECT_0 != wait_code){
 		printf("Error while waiting for threads to finish!\n");
+		ClearTestList(test_list);
+		free(thread_handles);
 		exit(EXIT_FAILURE);
 	}
 
-	/*
-	// Create Test results file // TODO
-	if (createTestResults(argv[3], test_list) != 0) {
+	// TODO - Check thread exit codes
+
+
+	// At this point all test threads have finished successfully - Create Test results file
+	if (createResultsFile(argv[2], test_list) != 0) {
 		printf("An error occurred during results file creation, couldn't complete the task!\n");
 		ClearTestList(test_list);
+		free(thread_handles);
 		exit(EXIT_FAILURE);
 	}
-	*/
 
 	ClearTestList(test_list);
+	free(thread_handles);
 	exit(EXIT_SUCCESS);
 }

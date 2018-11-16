@@ -40,9 +40,9 @@ int runTestThreads(test_app *test_list_ptr, HANDLE *thread_handles);
 int createAppTestList(char *tst_file_path, test_app **lst_ptr, int *test_counter);
 test_app *MakeTestFromLine(char *line);
 void AddTestToList(test_app **lst_ptr, test_app *new_test);
-int createTestResults(char *report_file_path,test_app *lst_ptr);
-void ClearTestList(test_app *tst_lst);
-static HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, test_app *tst_ptr, LPDWORD p_thread_id);
+int createResultsFile(char *report_file_path,test_app *lst_ptr);
+void ClearTestList(test_app *lst_ptr);
+BOOL CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, test_app *tst_ptr, LPDWORD p_thread_id, HANDLE *thread_handle_ptr);
 char *trimwhitespace(char *str);
 
 #endif // !APPTEST_H_INCLUDE
