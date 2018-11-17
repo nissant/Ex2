@@ -17,6 +17,7 @@ written in text output file once all threads have terminated.
 // Function Declarations -------------------------------------------------------
 DWORD WINAPI runProc(LPVOID lpParam);
 BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr);
-int CompareResults(test_app *lst_ptr);
+int CompareResults(test_app *test, char *path_str);
+void ExtractPath(char *src, char *dst);
 
 #endif
