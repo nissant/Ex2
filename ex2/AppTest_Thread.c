@@ -20,25 +20,24 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	BOOL				retVal;
 	int					res;
 
-	char tmp_str[MAX_LINE_LEN], path_str[MAX_LINE_LEN], *tmp_p;					// Used to extract the path of program that is going to run in the proccess
+
+	char  path_str[MAX_LINE_LEN];					// Used to extract the path of program that is going to run in the proccess
 	TCHAR command[MAX_LINE_LEN];			// App full command line string with arguments
 	TCHAR app_wdirectory[MAX_LINE_LEN];		// App working directory path for generated output .txt files
 
 	test_app *test = (test_app*)lpParam;	// Get pointer to test data to execute in this thread
 	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);	// Just testing...
 	
-	strcpy(tmp_str, test->app_cmd_line);	//used to extract the path of the progaram 
-	tmp_p = strrchr(tmp_str, '\\');
-	*tmp_p = '\0';
-	strcpy(path_str, tmp_str);
-
+	ExtractPath(test->app_cmd_line, path_str);
+		
 	swprintf(app_wdirectory, MAX_LINE_LEN, L"%hs", path_str);	// Convert path string to TCHAR
 	swprintf(command, MAX_LINE_LEN, L"%hs", test->app_cmd_line);	// Convert cmd string to TCHAR
-	retVal = CreateProcessSimple(command,app_wdirectory,&procinfo);	
+	retVal = CreateProcessSimple(command, app_wdirectory ,&procinfo);
 
 	if (retVal == 0)
 	{
-		printf("Couldn't create process, error code %d\n", GetLastError());
+		printf("Thread_Error - Couldn't create process, error code %d\n", GetLastError());
+		return(-1);
 	}
 
 	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
@@ -58,13 +57,13 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	{
 		printf("Process did not finish before timeout!\n");
 		strcpy(test->app_test_results, "Timed out");
-		return;
+		return 0;
 	}
 	
 	if (waitcode == WAIT_FAILED) //status check failed running
 	{
-		printf("Couldn't check process status (wait code), error code %d\n", GetLastError());
-		return;		//need to check what to do if there is failure 
+		printf("Thread_Error - Couldn't check process status (wait code), error code %d\n", GetLastError());
+		return -1;		//need to check what to do if there is failure 
 	}
 	if (waitcode == WAIT_OBJECT_0) //proccess ended. need to check results
 	{
@@ -76,7 +75,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			_itoa(exitcode, code, 10);
 			strcpy(test->app_test_results, "Crashed ");
 			strcat(test->app_test_results, code);
-			return;
+			return 0;
 		}
 		else     // program exit code is 0. need to compare results
 		{
@@ -84,16 +83,19 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			if (res == 0)
 			{
 				strcpy(test->app_test_results, "Succeeded");
-				return;
+				return 0;
 			}
-			else
+			if (res == 1)
 			{
 				strcpy(test->app_test_results, "Failed");
-				return;
+				return 0;
+			}
+			if (res == -1)
+			{
+				return -1; // failed comparing the files.
 			}
 		}
 	}
-	
 	return 0;
 }
 
@@ -103,7 +105,7 @@ int CompareResults(test_app *test, char *path_str)
 	char tmp_str[MAX_LINE_LEN], *tmp_str_p, *tmp_str_p2, path_to_result[MAX_LINE_LEN]; // variables to create string with the path of the actual results
 	FILE *fp_expected, *fp_actual;
 	char expected, actual;
-
+	
 	strcpy(tmp_str, test->app_cmd_line); //copy cmd line to tmp_str
 	tmp_str_p = strrchr(tmp_str, '\\'); // put pointer to the last slash before program name
 	tmp_str_p++;						// put pointer to begining of program name
@@ -111,15 +113,20 @@ int CompareResults(test_app *test, char *path_str)
 	*tmp_str_p2 = '\0';						//replace '.' with '\0'
 	strcpy(tmp_str, tmp_str_p); // put only the program name to tmp_str
 	strcat(tmp_str, ".txt");   // add .txt to program name
-	strcpy(path_to_result, path_str); // put the program path to path_to_result
+	strcpy(path_to_result, path_str);
+	strcat(path_to_result, "\\");  // 
 	strcat(path_to_result, tmp_str);	// add <program name>.txt to the path. this is the final path.
+	
 
 	fp_expected = fopen(test->app_exp_results_path, "r");
 	fp_actual = fopen(path_to_result, "r");
+
 	if (fp_expected == NULL || fp_actual == NULL)
 	{
-		printf("error openining expected and/or actual test results files\n");
-		exit(1);
+		printf("Thread_Error - error openining expected and/or actual test results files\n");
+		fclose(fp_expected);
+		fclose(fp_actual);
+		return (-1);
 	}	
 	expected = getc(fp_expected);
 	actual = getc(fp_actual);
@@ -133,12 +140,26 @@ int CompareResults(test_app *test, char *path_str)
 		}
 			
 		else
+		{
+			fclose(fp_expected);
+			fclose(fp_actual);
 			return 1; // files are NOT equal
+		}
+			
 	}
 	if (expected == actual)
+	{
+		fclose(fp_expected);
+		fclose(fp_actual);
 		return 0;	//files are equal
+	}
+		
 	else
-		return 1;	//files are NOT equal
+	{
+		fclose(fp_expected);
+		fclose(fp_actual);
+		return 1; // files are NOT equal
+	}
 }
 
 BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr)
@@ -162,5 +183,26 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFO
 	);
 }
 
+void ExtractPath(char *src, char *dst)
+{
+	/*
+	char tmp_str[MAX_LINE_LEN], *tmp_p;
+	strcpy(tmp_str, src);
+	tmp_p = strrchr(tmp_str, '\\');
+	if (tmp_p == NULL)
+	{
+		strcpy(dst, NULL);
+		return 1;
+	}
+
+	else
+	{
+		*tmp_p = '\0';
+		strcpy(dst, tmp_str);
+		return 0;
+	}
+	*/
+	strcpy(dst, NULL);
+}
 
 
