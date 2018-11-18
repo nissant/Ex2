@@ -21,6 +21,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	int					res;
 
 
+	int path_flag;
 	char  path_str[MAX_LINE_LEN];					// Used to extract the path of program that is going to run in the proccess
 	TCHAR command[MAX_LINE_LEN];			// App full command line string with arguments
 	TCHAR app_wdirectory[MAX_LINE_LEN];		// App working directory path for generated output .txt files
@@ -28,11 +29,11 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	test_app *test = (test_app*)lpParam;	// Get pointer to test data to execute in this thread
 	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);	// Just testing...
 	
-	ExtractPath(test->app_cmd_line, path_str);
-		
+	path_flag = ExtractPath(test->app_cmd_line, path_str);
 	swprintf(app_wdirectory, MAX_LINE_LEN, L"%hs", path_str);	// Convert path string to TCHAR
 	swprintf(command, MAX_LINE_LEN, L"%hs", test->app_cmd_line);	// Convert cmd string to TCHAR
-	retVal = CreateProcessSimple(command, app_wdirectory ,&procinfo);
+	
+	retVal = CreateProcessSimple(command, app_wdirectory ,&procinfo, path_flag);
 
 	if (retVal == 0)
 	{
@@ -79,7 +80,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 		}
 		else     // program exit code is 0. need to compare results
 		{
-			res = CompareResults(test, path_str); // need to update
+			res = CompareResults(test, path_str,path_flag); // need to update
 			if (res == 0)
 			{
 				strcpy(test->app_test_results, "Succeeded");
@@ -99,24 +100,35 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	return 0;
 }
 
-int CompareResults(test_app *test, char *path_str)
+int CompareResults(test_app *test, char *path_str, int path_not_valid)
 {
 	// the function comapres two text files.
-	char tmp_str[MAX_LINE_LEN], *tmp_str_p, *tmp_str_p2, path_to_result[MAX_LINE_LEN]; // variables to create string with the path of the actual results
+	char path_to_result[MAX_LINE_LEN], tmp_str[MAX_LINE_LEN], *pointer1 ,*pointer2; // variables to create string with the path of the actual results
 	FILE *fp_expected, *fp_actual;
 	char expected, actual;
+
 	
-	strcpy(tmp_str, test->app_cmd_line); //copy cmd line to tmp_str
-	tmp_str_p = strrchr(tmp_str, '\\'); // put pointer to the last slash before program name
-	tmp_str_p++;						// put pointer to begining of program name
-	tmp_str_p2 = strchr(tmp_str_p, '.');   // find the '.' of ".exe"
-	*tmp_str_p2 = '\0';						//replace '.' with '\0'
-	strcpy(tmp_str, tmp_str_p); // put only the program name to tmp_str
-	strcat(tmp_str, ".txt");   // add .txt to program name
-	strcpy(path_to_result, path_str);
-	strcat(path_to_result, "\\");  // 
-	strcat(path_to_result, tmp_str);	// add <program name>.txt to the path. this is the final path.
-	
+	if (!path_not_valid) // if there is a path to the results file
+	{
+		strcpy(tmp_str, test->app_cmd_line); // copy the test cmd_line to tmp string.
+		pointer1 = strrchr(tmp_str, '\\');   // find the last \ of the path
+		pointer1++;							// put pointer one to the begining of program name.
+		pointer2 = strchr(tmp_str, '.');	// find the '.' of <program name>.exe
+		*pointer2 = '\0';				// replace '.' with '\0' to copy later the program name.
+
+		strcpy(path_to_result, path_str);    // put the path in to path_to_result variable
+		strcat(path_to_result, "\\");
+		strcat(path_to_result, pointer1);
+		strcat(path_to_result, ".txt");
+	}
+	else
+	{
+		strcpy(tmp_str, test->app_cmd_line); // copy the test cmd_line to tmp string.
+		pointer2 = strchr(tmp_str, '.');	// find the '.' of <program name>.exe
+		*pointer2 = '\0';				// replace '.' with '\0' to copy later the program name.
+		strcpy(path_to_result, tmp_str);
+		strcat(path_to_result, ".txt");
+	}
 
 	fp_expected = fopen(test->app_exp_results_path, "r");
 	fp_actual = fopen(path_to_result, "r");
@@ -162,36 +174,51 @@ int CompareResults(test_app *test, char *path_str)
 	}
 }
 
-BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr)
+BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr, int path_flag)
 {
 	STARTUPINFO	startinfo = { sizeof(STARTUPINFO), NULL, 0 }; /* <ISP> here we */
 															  /* initialize a "Neutral" STARTUPINFO variable. Supplying this to */
 															  /* CreateProcess() means we have no special interest in this parameter. */
 															  /* This is equivalent to what we are doing by supplying NULL to most other */
 															  /* parameters of CreateProcess(). */
+	if (path_flag == 0)
+	{
+		return CreateProcess(NULL,	/*  No module name (use command line). */
+			CommandLine,			/*  Command line. */
+			NULL,					/*  Process handle not inheritable. */
+			NULL,					/*  Thread handle not inheritable. */
+			FALSE,					/*  Set handle inheritance to FALSE. */
+			NORMAL_PRIORITY_CLASS,	/*  creation/priority flags. */
+			NULL,					/*  Use parent's environment block. */
+			app_wdirectory,					/*  Use parent's starting directory. */
+			&startinfo,				/*  Pointer to STARTUPINFO structure. */
+			ProcessInfoPtr			/*  Pointer to PROCESS_INFORMATION structure. */
+		);
+	}
+	else
+	{
+		return CreateProcess(NULL,	/*  No module name (use command line). */
+			CommandLine,			/*  Command line. */
+			NULL,					/*  Process handle not inheritable. */
+			NULL,					/*  Thread handle not inheritable. */
+			FALSE,					/*  Set handle inheritance to FALSE. */
+			NORMAL_PRIORITY_CLASS,	/*  creation/priority flags. */
+			NULL,					/*  Use parent's environment block. */
+			NULL,					/*  Use parent's starting directory. */
+			&startinfo,				/*  Pointer to STARTUPINFO structure. */
+			ProcessInfoPtr			/*  Pointer to PROCESS_INFORMATION structure. */
+		);
+	}
 
-	return CreateProcess(NULL,	/*  No module name (use command line). */
-		CommandLine,			/*  Command line. */
-		NULL,					/*  Process handle not inheritable. */
-		NULL,					/*  Thread handle not inheritable. */
-		FALSE,					/*  Set handle inheritance to FALSE. */
-		NORMAL_PRIORITY_CLASS,	/*  creation/priority flags. */
-		NULL,					/*  Use parent's environment block. */
-		app_wdirectory,					/*  Use parent's starting directory. */
-		&startinfo,				/*  Pointer to STARTUPINFO structure. */
-		ProcessInfoPtr			/*  Pointer to PROCESS_INFORMATION structure. */
-	);
 }
 
-void ExtractPath(char *src, char *dst)
+int ExtractPath(char *src, char *dst)
 {
-	/*
 	char tmp_str[MAX_LINE_LEN], *tmp_p;
 	strcpy(tmp_str, src);
 	tmp_p = strrchr(tmp_str, '\\');
 	if (tmp_p == NULL)
 	{
-		strcpy(dst, NULL);
 		return 1;
 	}
 
@@ -201,8 +228,7 @@ void ExtractPath(char *src, char *dst)
 		strcpy(dst, tmp_str);
 		return 0;
 	}
-	*/
-	strcpy(dst, NULL);
+
 }
 
 
