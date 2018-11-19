@@ -38,7 +38,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	if (retVal == 0)
 	{
 		printf("Thread_Error - Couldn't create process, error code %d\n", GetLastError());
-		return(-1);
+		return 1;
 	}
 
 	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
@@ -64,7 +64,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	if (waitcode == WAIT_FAILED) //status check failed running
 	{
 		printf("Thread_Error - Couldn't check process status (wait code), error code %d\n", GetLastError());
-		return -1;		//need to check what to do if there is failure 
+		return 1;		//need to check what to do if there is failure 
 	}
 	if (waitcode == WAIT_OBJECT_0) //proccess ended. need to check results
 	{
@@ -93,7 +93,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			}
 			if (res == -1)
 			{
-				return -1; // failed comparing the files.
+				return 1; // failed comparing the files.
 			}
 		}
 	}

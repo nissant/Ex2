@@ -25,20 +25,53 @@ int runTestThreads(test_app *test_list_ptr, HANDLE *thread_handles) {
 	int i = 0;
 	HANDLE tmp_thread_handle;
 	HANDLE *tmp_thread_handle_ptr = &tmp_thread_handle;
+
+	if (thread_handles == NULL) {
+		return -1;
+	}
+
 	// Itterate over test list and open test threads
 	while (test_list_ptr != NULL) {
 		// Open new thread and pass to handler routine the test pointer to data
 		if (CreateThreadSimple(runProc, test_list_ptr, &test_list_ptr->test_thread_id, tmp_thread_handle_ptr) != 0){
+			// Thread creation failed
 			return -1;
 		}
-		test_list_ptr->test_thread_handles = tmp_thread_handle;
-		thread_handles[i] = test_list_ptr->test_thread_handles;
+		test_list_ptr->test_thread_handle = tmp_thread_handle;
+		thread_handles[i] = test_list_ptr->test_thread_handle;
 		test_list_ptr = test_list_ptr->next_test;
 		i++;
 	}
 	return 0;
 }
 
+/*
+Function: checkThreads
+------------------------
+Description – The function receive pointer to the head of tests list and free's allocated memory
+Parameters	– *lst_ptr is a pointer to the head of the tests list.
+Returns		– Nothing
+*/
+int checkThreads(test_app *test_list_ptr) {
+
+	DWORD ExitCode;
+	DWORD *lpExitCode = &ExitCode;
+
+	if (test_list_ptr == NULL) {
+		return -1;
+	}
+
+	// Itterate over test list and check thread exit codes
+	while (test_list_ptr != NULL) {
+		if (GetExitCodeThread(test_list_ptr->test_thread_handle, lpExitCode)) {
+			if (ExitCode != 0) {
+				printf("Test thread (for test command line: %s) has failed with exit code: %d \n", test_list_ptr->app_cmd_line, &ExitCode);
+			}
+		}
+		test_list_ptr = test_list_ptr->next_test;
+	}
+	return 0;
+}
 
 /*
 Function createAppTestList
@@ -84,7 +117,6 @@ Description – This function generates a test report in specified path.
 Parameters	– *report_file_path - pointer to the file path string, *lst_ptr - pointer the head of test linked list
 Returns		– 0 for success, -1 for failure
 */
-
 int createResultsFile(char *report_file_path, test_app *lst_ptr) {
 
 	// Set test results output file for writing
@@ -165,32 +197,21 @@ void AddTestToList(test_app **lst_ptr, test_app *new_test)
 }
 
 /*
-* A simplified API for creating threads.
-* Input Arguments:
-*   p_start_routine: A pointer to the function to be executed by the thread.
-*     This pointer represents the starting address of the thread.
-*     The function has to have this specific signature:
-*       DWORD WINAPI FunctionName(LPVOID lpParam);
-*     With FunctionName being replaced with the function's name.
-* Output Arguments:
-*   p_thread_id: A pointer to a variable that receives the thread identifier.
-*     If this parameter is NULL, the thread identifier is not returned.
-* Return:
-*   If the function succeeds, the return value is a handle to the new thread.
-*   If the function fails, the return value is NULL.
-*   To get extended error information, call GetLastError.
-* Notes:
-*   This function is just a wrapper for CreateThread.
+Function CreateThreadSimple
+------------------------
+Description – A simplified API for creating threads. This function is just a wrapper for CreateThread.
+Parameters	– p_start_routine: A pointer to the function to be executed by the thread,
+			  test_app *tst_ptr: A pointer to the test being passed to the thread as argument,
+			  p_thread_id: A pointer to a variable that receives the thread identifier,
+*					If this parameter is NULL, the thread identifier is not returned.
+			HANDLE *thread_handle_ptr: A pointer to the handle to the new thread. If the function
+			fails the return value us NULL
+Returns		– 0 for success, -1 for failure
 */
 int CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,test_app *tst_ptr,LPDWORD p_thread_id, HANDLE *thread_handle_ptr)
 {
-	HANDLE thread_handle;
-	
-	if (NULL == p_start_routine)
-	{
-		printf("Received null pointer for thread handler");
-		return -1;
-	}
+	HANDLE thread_handle = NULL;
+	*thread_handle_ptr = thread_handle;
 
 	if (NULL == p_start_routine)
 	{
@@ -272,5 +293,3 @@ void ClearTestList(test_app *lst_ptr)
 		free(tmp_t);
 	}
 }
-
-

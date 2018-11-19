@@ -11,7 +11,6 @@ written in text output file once all threads have terminated.
 
 int main(int argc, char *argv[]) {
 
-	HANDLE *thread_handles;
 	DWORD wait_code;
 	DWORD exit_code;
 	BOOL ret_val;
@@ -27,7 +26,7 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	// Create test list
+	// Create test linked list
 	int test_counter = 0;
 	int *test_counter_ptr = &test_counter;
 	test_app *test_list = NULL;
@@ -37,8 +36,9 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	// Open test threads and call thread function
-	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(test_counter));
+	// Open all test threads
+	HANDLE *thread_handles = NULL;
+	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(test_counter)); // Created for using WaitForMultipleObjects, malloc success is checked in runTestThreads routine
 	if (runTestThreads(test_list,thread_handles) != 0) {
 		printf("An error occurred when creating thread, couldn't complete the task!\n");
 		ClearTestList(test_list);
@@ -49,14 +49,19 @@ int main(int argc, char *argv[]) {
 	// Wait for threads to finish
 	wait_code = WaitForMultipleObjects((DWORD)test_counter,thread_handles, true ,INFINITE);
 	if (WAIT_OBJECT_0 != wait_code){
-		printf("Error while waiting for threads to finish!\n");
+		printf("Error while waiting for threads to finish, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		free(thread_handles);
 		exit(EXIT_FAILURE);
 	}
 
-	// TODO - Check thread exit codes
-
+	// Check thread exit codes
+	if (checkThreads(test_list) != 0) {
+		printf("Error in test thread execution, couldn't complete the task!\n");
+		ClearTestList(test_list);
+		free(thread_handles);
+		exit(EXIT_FAILURE);
+	}
 
 	// At this point all test threads have finished successfully - Create Test results file
 	if (createResultsFile(argv[2], test_list) != 0) {

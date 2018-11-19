@@ -25,7 +25,7 @@ Description		- This program impelments an application testing environment. Tests
 #define BRUTAL_TERMINATION_CODE 0x55
 
 typedef struct test_struct{
-	HANDLE test_thread_handles;						// Test thread data
+	HANDLE test_thread_handle;						// Test thread data
 	DWORD test_thread_id;							// Test thread data
 	char app_cmd_line[MAX_LINE_LEN];				// String of size MAX_LINE_LEN holding app full path with args
 	char app_exp_results_path[MAX_LINE_LEN];		// String of size MAX_LINE_LEN holding app expected resuts full path
