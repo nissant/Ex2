@@ -10,8 +10,13 @@ written in text output file once all threads have terminated.
 #include "AppTest_Thread.h"
 #define _CRT_SECURE_NO_WARNINGS
 
-
-
+/*
+Function runTestThreads
+------------------------
+Description – The function runs a process of the program with the given arguments and updates test struct with the result of the run
+Parameters	– lpParam - used to get test data to be exuceted
+Returns		– 0 for success, -1 for failure
+*/
 DWORD WINAPI runProc(LPVOID lpParam)
 {
 	PROCESS_INFORMATION procinfo;
@@ -84,6 +89,14 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	return 0;
 }
 
+/*
+Function CompareResults
+------------------------
+Description – The function compares two text files.
+Parameters	– *test - includes test data. used to get relevant paths, program name, etc. *path_str includes the path to the exe program (if supplied)
+				path_not_valid indicates if there is a path in the path_str string or isn't.
+Returns		– 1 for NOT equal files, 0 for equal files, -1 for problem with execution.
+*/
 int CompareResults(test_app *test, char *path_str, int path_not_valid)
 {
 	// the function comapres two text files.
@@ -156,6 +169,15 @@ int CompareResults(test_app *test, char *path_str, int path_not_valid)
 	}
 }
 
+/*
+Function CreateProcessSimple
+------------------------
+Description – The function runs a proccess (summons the CreaProcess function)
+Parameters	– CommandLine - this is the command line for running the proccess. app_wdirectory - use parent directory if needed. 
+				ProccessInfoPtr - used to write proccess information by the proccess itself. 
+				path_flag - tells the program to use parent directory or different one (if path_flag ==1) 
+Returns		– returns the return value from CreateProcess method.
+*/
 BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr, int path_flag)
 {
 	STARTUPINFO	startinfo = { sizeof(STARTUPINFO), NULL, 0 }; /* <ISP> here we */
@@ -172,7 +194,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFO
 			FALSE,					/*  Set handle inheritance to FALSE. */
 			NORMAL_PRIORITY_CLASS,	/*  creation/priority flags. */
 			NULL,					/*  Use parent's environment block. */
-			app_wdirectory,					/*  Use parent's starting directory. */
+			app_wdirectory,					/*  Use the supplied directory. */
 			&startinfo,				/*  Pointer to STARTUPINFO structure. */
 			ProcessInfoPtr			/*  Pointer to PROCESS_INFORMATION structure. */
 		);
@@ -194,6 +216,13 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFO
 
 }
 
+/*
+Function ExtractPath
+------------------------
+Description – The function checks if the command line was supllied with full path or just program name
+Parameters	– src is the command line. dst is the destination string that the path of the program is being copied to.
+Returns		– returns 1 if the command line contains only program name (without path). returns 0 if the command line includes path to program.exe
+*/
 int ExtractPath(char *src, char *dst)
 {
 	char tmp_str[MAX_LINE_LEN], *tmp_p;
