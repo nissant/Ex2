@@ -12,17 +12,15 @@ written in text output file once all threads have terminated.
 int main(int argc, char *argv[]) {
 
 	DWORD wait_code;
-	DWORD exit_code;
-	BOOL ret_val;
 
 	// Check that exactly 2 cmd line args are present
 	if (argc < 3) {									
-		printf("Not enough input arguments!");
+		printf("Not enough input arguments, couldn't complete the task!\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if (argc > 3) {
-		printf("Too many input arguments!");
+		printf("Too many input arguments, couldn't complete the task!\n");
 		exit(EXIT_FAILURE);
 	}
 

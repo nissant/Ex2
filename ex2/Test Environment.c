@@ -66,7 +66,7 @@ int checkThreads(test_app *test_list_ptr) {
 	while (test_list_ptr != NULL) {
 		if (GetExitCodeThread(test_list_ptr->test_thread_handle, lpExitCode)) {
 			if (ExitCode != 0) {
-				printf("Error in thread execution (for test command line: %s) \n", test_list_ptr->app_cmd_line);
+				printf("Error in thread execution (for test command line: %s), couldn't complete the task!\n", test_list_ptr->app_cmd_line);
 				errFlag++;
 			}
 		}
@@ -82,8 +82,8 @@ int checkThreads(test_app *test_list_ptr) {
 /*
 Function createAppTestList
 ------------------------
-Description – 
-Parameters	– 
+Description – The function creates the application test linked list and counts the number of tests that will be executed
+Parameters	– test_app **lst_ptr - pointer to the top of the list, tst_file_path - input test .txt file path, pointer to counter variable
 Returns		– 0 for success, -1 for failure
 */
 int createAppTestList(char *tst_file_path, test_app **lst_ptr,int *test_counter) {
