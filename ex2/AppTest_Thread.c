@@ -136,7 +136,7 @@ int CompareResults(test_app *test, char *path_str, int path_not_valid)
 	}	
 	expected = getc(fp_expected);
 	actual = getc(fp_actual);
-	while (expected != EOF & actual != EOF)
+	while (expected != EOF && actual != EOF)
 	{
 		if (expected == actual)
 		{
