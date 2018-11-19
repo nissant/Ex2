@@ -86,7 +86,6 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			}
 		}
 	}
-	return 0;
 }
 
 /*
