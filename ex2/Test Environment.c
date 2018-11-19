@@ -50,7 +50,7 @@ Function: checkThreads
 ------------------------
 Description – The function receive pointer to the head of tests list and free's allocated memory
 Parameters	– *lst_ptr is a pointer to the head of the tests list.
-Returns		– Nothing
+Returns		– 0 for success, -1 for failure
 */
 int checkThreads(test_app *test_list_ptr) {
 
@@ -66,12 +66,13 @@ int checkThreads(test_app *test_list_ptr) {
 	while (test_list_ptr != NULL) {
 		if (GetExitCodeThread(test_list_ptr->test_thread_handle, lpExitCode)) {
 			if (ExitCode != 0) {
-				printf("Error in thread execution for test command line: %s , failed with exit code: %d \n", test_list_ptr->app_cmd_line, &ExitCode);
+				printf("Error in thread execution (for test command line: %s) \n", test_list_ptr->app_cmd_line);
 				errFlag++;
 			}
 		}
 		test_list_ptr = test_list_ptr->next_test;
 	}
+
 	if (errFlag)
 		return -1;
 	else

@@ -25,14 +25,14 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	BOOL				retVal;
 	int					res;
 	int path_flag;
-	char  path_str[MAX_LINE_LEN];					// Used to extract the path of program that is going to run in the proccess
+	char  path_str[MAX_LINE_LEN];			// Used to extract the path of program that is going to run in the proccess
 	TCHAR command[MAX_LINE_LEN];			// App full command line string with arguments
 	TCHAR app_wdirectory[MAX_LINE_LEN];		// App working directory path for generated output .txt files
 
 	test_app *test = (test_app*)lpParam;	// Get pointer to test data to execute in this thread
 	
-	path_flag = ExtractPath(test->app_cmd_line, path_str);
-	swprintf(app_wdirectory, MAX_LINE_LEN, L"%hs", path_str);	// Convert path string to TCHAR
+	path_flag = ExtractPath(test->app_cmd_line, path_str);			// Get folder path
+	swprintf(app_wdirectory, MAX_LINE_LEN, L"%hs", path_str);		// Convert path string to TCHAR
 	swprintf(command, MAX_LINE_LEN, L"%hs", test->app_cmd_line);	// Convert cmd string to TCHAR
 	
 	retVal = CreateProcessSimple(command, app_wdirectory ,&procinfo, path_flag);
