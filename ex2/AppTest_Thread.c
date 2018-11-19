@@ -19,15 +19,12 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	DWORD				exitcode;
 	BOOL				retVal;
 	int					res;
-
-
 	int path_flag;
 	char  path_str[MAX_LINE_LEN];					// Used to extract the path of program that is going to run in the proccess
 	TCHAR command[MAX_LINE_LEN];			// App full command line string with arguments
 	TCHAR app_wdirectory[MAX_LINE_LEN];		// App working directory path for generated output .txt files
 
 	test_app *test = (test_app*)lpParam;	// Get pointer to test data to execute in this thread
-	printf("This thread has access to test with full command: %s\n", test->app_cmd_line);	// Just testing...
 	
 	path_flag = ExtractPath(test->app_cmd_line, path_str);
 	swprintf(app_wdirectory, MAX_LINE_LEN, L"%hs", path_str);	// Convert path string to TCHAR
@@ -43,20 +40,8 @@ DWORD WINAPI runProc(LPVOID lpParam)
 
 	waitcode = WaitForSingleObject(procinfo.hProcess, TIMEOUT_IN_MILLISECONDS); // Waiting for the process to end
 
-	printf("checking proccess status (wait code)\n"); //debug prints
-	switch (waitcode)
-	{
-	case WAIT_TIMEOUT:
-		printf("WAIT_TIMEOUT\n"); break;
-	case WAIT_OBJECT_0:
-		printf("WAIT_OBJECT_0\n"); break;
-	case WAIT_FAILED:
-		printf("WAIT_FAILED\n");
-	}
-
 	if (waitcode == WAIT_TIMEOUT) // Process is still alive
 	{
-		printf("Process did not finish before timeout!\n");
 		strcpy(test->app_test_results, "Timed out");
 		return 0;
 	}
@@ -64,14 +49,13 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	if (waitcode == WAIT_FAILED) //status check failed running
 	{
 		printf("Thread_Error - Couldn't check process status (wait code), error code %d\n", GetLastError());
-		return 1;		//need to check what to do if there is failure 
+		return 1;		
 	}
 	if (waitcode == WAIT_OBJECT_0) //proccess ended. need to check results
 	{
 		GetExitCodeProcess(procinfo.hProcess, &exitcode);
 		if (exitcode != 0)
 		{
-			printf("program crashed. exit code is non zero\n");
 			char code[MAX_LINE_LEN];
 			_itoa(exitcode, code, 10);
 			strcpy(test->app_test_results, "Crashed ");
@@ -136,8 +120,6 @@ int CompareResults(test_app *test, char *path_str, int path_not_valid)
 	if (fp_expected == NULL || fp_actual == NULL)
 	{
 		printf("Thread_Error - error openining expected and/or actual test results files\n");
-		fclose(fp_expected);
-		fclose(fp_actual);
 		return (-1);
 	}	
 	expected = getc(fp_expected);
