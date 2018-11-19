@@ -56,6 +56,7 @@ int checkThreads(test_app *test_list_ptr) {
 
 	DWORD ExitCode;
 	DWORD *lpExitCode = &ExitCode;
+	int errFlag = 0;
 
 	if (test_list_ptr == NULL) {
 		return -1;
@@ -65,12 +66,16 @@ int checkThreads(test_app *test_list_ptr) {
 	while (test_list_ptr != NULL) {
 		if (GetExitCodeThread(test_list_ptr->test_thread_handle, lpExitCode)) {
 			if (ExitCode != 0) {
-				printf("Test thread (for test command line: %s) has failed with exit code: %d \n", test_list_ptr->app_cmd_line, &ExitCode);
+				printf("Error in thread execution for test command line: %s , failed with exit code: %d \n", test_list_ptr->app_cmd_line, &ExitCode);
+				errFlag++;
 			}
 		}
 		test_list_ptr = test_list_ptr->next_test;
 	}
-	return 0;
+	if (errFlag)
+		return -1;
+	else
+		return 0;
 }
 
 /*

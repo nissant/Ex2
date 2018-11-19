@@ -57,7 +57,6 @@ int main(int argc, char *argv[]) {
 
 	// Check thread exit codes
 	if (checkThreads(test_list) != 0) {
-		printf("Error in test thread execution, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		free(thread_handles);
 		exit(EXIT_FAILURE);
