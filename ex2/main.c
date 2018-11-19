@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (argc > 3) {
-		printf("Tpp many input arguments!");
+		printf("Too many input arguments!");
 		exit(EXIT_FAILURE);
 	}
 
