@@ -47,7 +47,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 
 	if (waitcode == WAIT_TIMEOUT) // Process is still alive
 	{
-		strcpy(test->app_test_results, "Timed out");
+		strcpy(test->app_test_results, "Timed Out");
 		return 0;
 	}
 	

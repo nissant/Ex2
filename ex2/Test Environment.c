@@ -14,6 +14,7 @@ written in text output file once all threads have terminated.
 
 
 // Function Definitions --------------------------------------------------------
+
 /*
 Function runTestThreads
 ------------------------
@@ -73,7 +74,7 @@ int checkThreads(test_app *test_list_ptr) {
 		test_list_ptr = test_list_ptr->next_test;
 	}
 
-	if (errFlag)
+	if (errFlag != 0)
 		return -1;
 	else
 		return 0;
