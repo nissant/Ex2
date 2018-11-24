@@ -68,7 +68,7 @@ int checkThreads(test_app *test_list_ptr) {
 	while (test_list_ptr != NULL) {
 		if (GetExitCodeThread(test_list_ptr->test_thread_handle, lpExitCode)) {
 			if (ExitCode != 0) {
-				printf("Error in thread execution (for test command line: %s), couldn't complete the task!\n", test_list_ptr->app_cmd_line);
+				printf("Error in thread execution (for test: %s). Check file paths and try again..\n", test_list_ptr->app_cmd_line);
 				errFlag++;
 			}
 		}
@@ -287,7 +287,7 @@ char *trimwhitespace(char *str)
 /*
 Function: ClearTestList
 ------------------------
-Description – The function receive pointer to the head of tests list and free's allocated memory
+Description – The function receive pointer to the head of tests list then free's thread handles and allocated memory
 Parameters	– *lst_ptr is a pointer to the head of the tests list.
 Returns		– Nothing
 */
@@ -298,6 +298,10 @@ void ClearTestList(test_app *lst_ptr)
 	{
 		tmp_t = lst_ptr;
 		lst_ptr = lst_ptr->next_test;
+
+		// Close process and thread handles. 
+		CloseHandle(tmp_t->test_thread_handle);
+		// Free memory
 		free(tmp_t);
 	}
 }

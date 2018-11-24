@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Open all test threads
-	HANDLE *thread_handles = NULL;
-	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(test_counter)); // Created for using WaitForMultipleObjects, malloc success is checked in runTestThreads routine
+	HANDLE *thread_handles = NULL;		// Created for using WaitForMultipleObjects
+	thread_handles = (HANDLE*)malloc(sizeof(HANDLE)*(test_counter));	// malloc success is checked in runTestThreads routine
 	if (runTestThreads(test_list,thread_handles) != 0) {
-		printf("An error occurred when creating thread, couldn't complete the task!\n");
+		printf("An error occurred when creating test threads, couldn't complete the task!\n");
 		ClearTestList(test_list);
 		free(thread_handles);
 		exit(EXIT_FAILURE);

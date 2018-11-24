@@ -20,5 +20,6 @@ DWORD WINAPI runProc(LPVOID lpParam);
 BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFORMATION *ProcessInfoPtr, int path_flag);
 int CompareResults(test_app *test, char *path_str, int path_flag);
 int ExtractPath(char *src, char *dst);
+void closeProcHandle(PROCESS_INFORMATION procinfo);
 
 #endif

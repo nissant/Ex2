@@ -49,12 +49,14 @@ DWORD WINAPI runProc(LPVOID lpParam)
 	if (waitcode == WAIT_TIMEOUT) // Process is still alive
 	{
 		strcpy(test->app_test_results, "Timed Out");
+		closeProcHandle(procinfo);
 		return 0;
 	}
 	
 	if (waitcode == WAIT_FAILED) //status check failed running
 	{
 		printf("Thread_Error - Couldn't check process status (wait code), error code %d\n", GetLastError());
+		closeProcHandle(procinfo);
 		return 1;		
 	}
 	if (waitcode == WAIT_OBJECT_0) //proccess ended. need to check results
@@ -66,6 +68,7 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			_itoa(exitcode, code, 10);
 			strcpy(test->app_test_results, "Crashed ");
 			strcat(test->app_test_results, code);
+			closeProcHandle(procinfo);
 			return 0;
 		}
 		else     // program exit code is 0. need to compare results
@@ -74,16 +77,19 @@ DWORD WINAPI runProc(LPVOID lpParam)
 			if (res == 0)
 			{
 				strcpy(test->app_test_results, "Succeeded");
+				closeProcHandle(procinfo);
 				return 0;
 			}
 			if (res == 1)
 			{
 				strcpy(test->app_test_results, "Failed");
+				closeProcHandle(procinfo);
 				return 0;
 			}
 			if (res == -1)
-			{
-				return 1; // failed comparing the files.
+			{	// failed comparing the files
+				closeProcHandle(procinfo);
+				return 1; 
 			}
 		}
 	}
@@ -195,7 +201,7 @@ BOOL CreateProcessSimple(LPTSTR CommandLine, LPTSTR app_wdirectory, PROCESS_INFO
 			FALSE,					/*  Set handle inheritance to FALSE. */
 			NORMAL_PRIORITY_CLASS,	/*  creation/priority flags. */
 			NULL,					/*  Use parent's environment block. */
-			app_wdirectory,					/*  Use the supplied directory. */
+			app_wdirectory,			/*  Use the supplied directory. */
 			&startinfo,				/*  Pointer to STARTUPINFO structure. */
 			ProcessInfoPtr			/*  Pointer to PROCESS_INFORMATION structure. */
 		);
@@ -241,6 +247,20 @@ int ExtractPath(char *src, char *dst)
 		return 0;
 	}
 
+}
+
+
+/*
+Function closeProcHandle
+------------------------
+Description – The function closes the input handle
+Parameters	– procinfo contains handles of the created process
+Returns		– Nothing
+*/
+void closeProcHandle(PROCESS_INFORMATION procinfo) {
+	// Close process and thread handles. 
+	CloseHandle(procinfo.hProcess);
+	CloseHandle(procinfo.hThread);
 }
 
 
