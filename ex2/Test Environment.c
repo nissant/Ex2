@@ -140,6 +140,7 @@ int createResultsFile(char *report_file_path, test_app *lst_ptr) {
 		test_count++;
 		lst_ptr = lst_ptr->next_test;
 	}
+	fclose(fp_results);
 	return 0;
 }
 
